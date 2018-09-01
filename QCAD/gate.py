@@ -1,5 +1,6 @@
 from QCAD import Module, Register
 
+
 class Gate(object):
     def __init__(self, reg, module):
         self.name = module.name
