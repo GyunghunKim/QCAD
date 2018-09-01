@@ -17,7 +17,7 @@ class Module(object):
         _gate = Gate(self.name, reg)
 
         for _module, _reg_index in zip(self.sub_modules, self.reg_indices):
-            _temp_reg = Register(_module.get_reg_number())
+            _temp_reg = Register(0)
             for _i in _reg_index:
                 _temp_reg.append(reg[_i])
 
@@ -28,12 +28,19 @@ class Module(object):
     def get_reg_number(self):
         return self.n
 
-    def __getitem__(self, *item):
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return [self, (item,)]
         return [self, item]
 
 
 class TypicalModule:
+    I = Module('I', 1)
     H = Module('H', 1)
+    X = Module('X', 1)
+    Y = Module('Y', 1)
+    Z = Module('Z', 1)
+    CZ = Module('CZ', 2)
 
     def __init__(self):
         pass
