@@ -7,9 +7,6 @@ import math
 
 
 class MatrixModel(Backend):
-    """
-    Class MatrixModel
-    """
     H = np.multiply(0.5 ** 0.5, [[1., 1.],
                                  [1., -1.]])
     X = [[0., 1.],
