@@ -1,9 +1,6 @@
-"""
-Module matrixmodel for class MatrixModel (matrix model)
-Author: Gyunghun Kim
-Date:   2018.09.01
-"""
+# Module for class Matrix Model
 
+from .. import Module
 from . import Backend
 import numpy as np
 import math
@@ -37,7 +34,7 @@ class MatrixModel(Backend):
         pass
 
     @staticmethod
-    def get_modulematrix(module):
+    def get_modulematrix(module: Module):
         # 모듈을 받아서 행렬로 바꿔주는 함수
         # TODO: 최적화 가능한 알고리즘이므로 추가적인 개발 필요.
 

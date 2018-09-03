@@ -1,3 +1,6 @@
+# Module of class Module (Quantum Gates)
+
+
 class Module(object):
     def __init__(self, name, n, ind_modules=[]):
         # initialize

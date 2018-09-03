@@ -1,16 +1,10 @@
-"""
-Module nomm for class Nomm (No optimized matrix model)
-Author: Gyunghun Kim
-Date:   2018.09.01
-"""
+# Module for class No Optimized Matrix Model (NOMM)
 
+from .. import QuantumCircuit
 from . import MatrixModel
 
 
 class Nomm(MatrixModel):
-    """
-    Class Nomm
-    """
-    def __init__(self, quantum_circuit):
+    def __init__(self, quantum_circuit: QuantumCircuit):
         self.runable = True
 
