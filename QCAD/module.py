@@ -47,12 +47,15 @@ class Module(object):
 
                 del temp_reg_indices[i]
                 for k in range(len(temp_decom[1])):
-                    temp_indecies = []
+                    temp_indices = []
                     for l in temp_decom[1][k]:
-                        temp_indecies.append(self.reg_indices[i][l])
-                    temp_reg_indices.insert(i + k, temp_indecies)
+                        temp_indices.append(self.reg_indices[i][l])
+                    temp_reg_indices.insert(i + k, temp_indices)
 
         return temp_sub_modules, temp_reg_indices
+
+    def __len__(self):
+        return self.n
 
 
 class TypicalModule:

@@ -1,5 +1,7 @@
-from QCAD import Gate
+from QCAD import Module
 
 
-class QuantumCircuit(Gate):
-    pass
+class QuantumCircuit(object):
+    def __init__(self, module):
+        self.module = module
+

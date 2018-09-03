@@ -29,37 +29,70 @@ class MatrixModel(Backend):
           [0., 1., 0., 0.],
           [0., 0., 0., 1.],
           [0., 0., 1., 0.]]
+
+    #TypicalMatrix dictionary는 알려진 모듈의 이름과 행렬을 관계지음.
     TypicalMatrix = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'CZ':CZ}
 
     def __init__(self, quantum_circuit):
         pass
 
     @staticmethod
-    def get_gatematrix(gate):
-        """
-        :param gate: 게이트 객체를 전달
-        :return: 게이트를 매트릭스로 반환
-        """
-        if not gate.sub_gates:
-            return MatrixModel.TypicalMatrix[gate.name]
+    def get_modulematrix(module):
+        # 모듈을 받아서 행렬로 바꿔주는 함수
+        # TODO: 최적화 가능한 알고리즘이므로 추가적인 개발 필요.
 
-        _gate_matrix = np.eye(2 ** len(gate.reg), dtype='complex')
+        if module.typical is True:
+            return MatrixModel.TypicalMatrix[module.name]
 
-        for _sub_gate in gate.sub_gates:
-            _apply_list = []
-            for _bit in _sub_gate.reg.bits:
-                _apply_list.append(_bit.data)
+        _module_matrix = np.eye(2 ** len(module), dtype='complex')
+        _sub_modules, _indices = module.get_submodules()
 
-            _permute_matrix = np.eye(2 ** len(gate.reg), dtype='complex')
-            for _i, _j in zip(range(len(_apply_list)), _apply_list):
-                _permute_matrix[[_i, _j]] = _permute_matrix[[_j, _i]]
+        for _sub_module, _index in zip(_sub_modules, _indices):
+            # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
+            _permutation_matrix = np.eye(2 ** len(module))
 
-            _temp_gate_matrix = MatrixModel.get_gatematrix(_sub_gate)
-            for _i in range(len(gate.reg) - len(_apply_list)):
-                _temp_gate_matrix = np.kron(MatrixModel.TypicalMatrix['I'], _temp_gate_matrix)
+            _temp_array = list(range(len(module)))
+            for _i in range(len(_index)):
+                if _temp_array[_i] is not _index[_i]:
+                    _a, _b = _i, _temp_array.index(_index[_i])
+                    _temp_array[_b], _temp_array[_a] = _temp_array[_a], _temp_array[_b]
+                    _permutation_matrix = MatrixModel.get_permutationmatrix(len(module), _a, _b) @ _permutation_matrix
 
-            _sub_gate_matrix = _permute_matrix @ _temp_gate_matrix @ _permute_matrix
+            _temp_module_matrix = MatrixModel.get_modulematrix(_sub_module)
+            for _i in range(len(module) - len(_index)):
+                _temp_module_matrix = np.kron(MatrixModel.TypicalMatrix['I'], _temp_module_matrix)
 
-            _gate_matrix = _sub_gate_matrix @ _gate_matrix
+            _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
 
-        return _gate_matrix
+            _module_matrix = _sub_module_matrix @ _module_matrix
+
+        return _module_matrix
+
+    @staticmethod
+    def get_permutationmatrix(n, i, j):
+        # n-qubit system에서 i번째 qubit과 j번째 qubit의 permutation을 나타내는 행렬을 반환
+        if i is j:
+            return np.eye(2 ** n)
+        
+        _permutation_matrix_array = [np.array([[1]])] * 4
+        
+        for _k in range(n):
+            if _k in (i, j):
+                _permutation_matrix_array[0] = np.kron(np.array([[1, 0], [0, 0]]), _permutation_matrix_array[0])
+                _permutation_matrix_array[1] = np.kron(np.array([[0, 0], [0, 1]]), _permutation_matrix_array[1])
+                if _k is i:
+                    _c1 = 1
+                    _c2 = 0
+                else:
+                    _c1 = 0
+                    _c2 = 1
+                _permutation_matrix_array[2] = np.kron(np.array([[0, _c1], [_c2, 0]]), _permutation_matrix_array[2])
+                _permutation_matrix_array[3] = np.kron(np.array([[0, _c2], [_c1, 0]]), _permutation_matrix_array[3])
+            else:
+                for _l in range(len(_permutation_matrix_array)):
+                    _permutation_matrix_array[_l] = np.kron(np.eye(2), _permutation_matrix_array[_l])
+
+        _temp_permutation_matrix = sum(_permutation_matrix_array)
+
+        return _temp_permutation_matrix
+
