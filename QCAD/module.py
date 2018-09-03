@@ -13,6 +13,7 @@ class Module(object):
                 if(_ind_module[1][_ind_module1]>=self.n):
                     raise IndexError
 
+
     def set_typical(self):
         self.typical=True
 
