@@ -8,6 +8,8 @@ Every backend simulator models must inherit from class Backend.
 
 class Backend(object):
     """
-
+    Class Backend
     """
-    pass
+    def __init__(self, quantum_circuit):
+        self.runable = False
+        self.quantum_circuit = quantum_circuit

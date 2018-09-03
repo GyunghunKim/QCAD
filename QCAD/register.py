@@ -10,5 +10,11 @@ class Register(object):
     def __getitem__(self, item):
         return self.bits[item]
 
+    def __setitem__(self, key, value):
+        self.bits[key] = value
+
     def append(self, bit):
         self.bits.append(bit)
+
+    def __len__(self):
+        return len(self.bits)

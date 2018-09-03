@@ -1,4 +1,4 @@
-from QCAD import Module, Register
+from QCAD import Module, Register, Bit
 
 
 class Gate(object):
@@ -10,6 +10,6 @@ class Gate(object):
         for _module, _reg_index in zip(module.sub_modules, module.reg_indices):
             _temp_reg = Register(0)
             for _i in _reg_index:
-                _temp_reg.append(reg[_i])
+                _temp_reg.append(Bit(_i))
 
             self.sub_gates.append(Gate(_temp_reg, _module))

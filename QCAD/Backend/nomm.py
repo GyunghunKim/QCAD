@@ -4,12 +4,13 @@ Author: Gyunghun Kim
 Date:   2018.09.01
 """
 
-from . import Backend
+from . import MatrixModel
 
 
-class Nomm(Backend):
+class Nomm(MatrixModel):
     """
     Class Nomm
     """
     def __init__(self, quantum_circuit):
-        pass
+        self.runable = True
+

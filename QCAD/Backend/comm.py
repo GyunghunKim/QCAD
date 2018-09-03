@@ -4,10 +4,10 @@ Author: Gyunghun Kim
 Date:   2018.09.01
 """
 
-from . import Backend
+from . import MatrixModel
 
 
-class Comm(Backend):
+class Comm(MatrixModel):
     """
     Class Comm
     """
