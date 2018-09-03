@@ -45,10 +45,9 @@ class MatrixModel(Backend):
             return MatrixModel.TypicalMatrix[module.name]
 
         _module_matrix = np.eye(2 ** len(module), dtype='complex')
-        _sub_modules, _indices = module.get_submodules()
 
-        for _sub_module, _index in zip(_sub_modules, _indices):
-            # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
+        # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
+        for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
             _permutation_matrix = np.eye(2 ** len(module))
 
             _temp_array = list(range(len(module)))
@@ -62,6 +61,7 @@ class MatrixModel(Backend):
             for _i in range(len(module) - len(_index)):
                 _temp_module_matrix = np.kron(MatrixModel.TypicalMatrix['I'], _temp_module_matrix)
 
+            # 모듈의 matrix를 구한다.
             _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
 
             _module_matrix = _sub_module_matrix @ _module_matrix
