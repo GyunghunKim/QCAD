@@ -1,10 +1,12 @@
 # Module for class Matrix Model
 
-from .. import Module
-from . import Backend
-from .. import QuantumCircuit
 import numpy as np
 import math
+import copy
+
+from .. import TypicalModule
+from . import Backend
+from .. import QuantumCircuit
 
 
 class MatrixModel(Backend):
@@ -46,12 +48,12 @@ class MatrixModel(Backend):
         elif module.matrix_only_defined is True:
             return module.matrix
 
-        _module_matrix = np.eye(2 ** module.n, dtype='complex')
-
-        if module.controlled is True:
-
+        elif module.controlled is True:
+            return MatrixModel.get_controlled_modulematrix(module)
 
         else:
+            _module_matrix = np.eye(2 ** module.n, dtype='complex')
+
             for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
 
                 # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
@@ -69,14 +71,48 @@ class MatrixModel(Backend):
                 _temp_module_matrix = MatrixModel.get_modulematrix(_sub_module)
 
                 for _i in range(module.n - len(_index)):
-                    _temp_module_matrix = np.kron(MatrixModel.TypicalMatrix['I'], _temp_module_matrix)
+                    _temp_module_matrix = np.kron(MatrixModel.PreDefinedModeules['I'], _temp_module_matrix)
 
                 # 모듈의 matrix를 구한다.
                 _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
 
                 _module_matrix = _sub_module_matrix @ _module_matrix
 
-        return _module_matrix
+                return _module_matrix
+
+    @staticmethod
+    def get_controlled_modulematrix(module: TypicalModule.MCU):
+        # 재귀적 처리를 통해 MCU의 행렬 표현을 구한다.
+        _module = module.copy()
+
+        if not module.control_bits:
+            _module.controlled = False
+            return MatrixModel.get_modulematrix(_module)
+
+        _permutation_matrix = np.eye(2 ** _module.n)
+
+        if 0 not in _module.control_bits:
+            _a = _module.control_bits[0]
+            _module.control_bits[0] = 0
+
+            if 0 in _module.reg_indices[0]:
+                _module.reg_indices[0][_module.reg_indices[0].index(0)] = _a
+
+            _module.n -= 1
+            for control_bit in _module.control_bits:
+                control_bit -= 1
+            for reg_index in _module.reg_indices[0]:
+                reg_index -= 1
+
+            _permutation_matrix = MatrixModel.get_permutationmatrix(_module.n, 0, _a)
+
+        _module.control_bits.remove(0)
+
+        return np.linalg.inv(_permutation_matrix) \
+               @ np.block([[np.eye(2 ** _module.n), np.zeros(2 ** _module.n)],
+                           [np.zeros(2 ** _module.n)], MatrixModel.get_controlled_modulematrix(_module)]) \
+               @ _permutation_matrix
+
 
     @staticmethod
     def get_permutationmatrix(n, i, j):

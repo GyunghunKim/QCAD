@@ -69,10 +69,12 @@ class TypicalModule:
             self.matrix = np.array(matrix)
 
     class MCU(Module):
-        def __init__(self, name, n, control_bits, u):
-            super.__init__(self, name, n, [u])
+        def __init__(self, name, n, control_bits, applied_module):
+            # TODO: applied_module이 1개 이상 들어오는 경우 에러 처리 필요
+
+            super.__init__(self, name, n, [applied_module])
             self.controlled = True
-            self.matrix_only_defined = u.matrix_only_defined
+            self.matrix_only_defined = applied_module.matrix_only_defined
             self.control_bits = control_bits
 
     I = Module('I', 1)
