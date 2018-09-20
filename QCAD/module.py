@@ -1,4 +1,5 @@
 # Module of class Module (Quantum Gates)
+import numpy as np
 
 
 class Module(object):
@@ -9,11 +10,13 @@ class Module(object):
         self.sub_modules = []
         self.reg_indices = []
         self.typical= False
+        self.matrix_only_defined = False
+        self.controlled = False
 
         for _ind_module in ind_modules:
             self.sub_modules.append(_ind_module[0])
             self.reg_indices.append(_ind_module[1])
-            for _ind_module1 in range(len(_ind_module[1])):
+            for _ind_module1 in range(_ind_module[1].n):
                 if not _ind_module[1][_ind_module1] < self.n:
                     raise IndexError
 
@@ -45,7 +48,7 @@ class Module(object):
                 temp_decom = temp_sub_modules[i].typ_decompose()
 
                 del temp_sub_modules[i]
-                for j in range(len(temp_decom[0])):
+                for j in range(temp_decom[0].n):
                     temp_sub_modules.insert(i+j, temp_decom[0][j])
 
                 del temp_reg_indices[i]
@@ -57,23 +60,37 @@ class Module(object):
 
         return temp_sub_modules, temp_reg_indices
 
-    def __len__(self):
-        return self.n
-
 
 class TypicalModule:
+    class U(Module):
+        def __init__(self, name, n, matrix):
+            super.__init__(self, name, n)
+            self.matrix_only_defined = True
+            self.matrix = np.array(matrix)
+
+    class MCU(Module):
+        def __init__(self, name, n, control_bits, u):
+            super.__init__(self, name, n, [u])
+            self.controlled = True
+            self.matrix_only_defined = u.matrix_only_defined
+            self.control_bits = control_bits
+
     I = Module('I', 1)
     H = Module('H', 1)
     X = Module('X', 1)
     Y = Module('Y', 1)
     Z = Module('Z', 1)
-    CZ = Module('CZ', 2)
+    CX = MCU('CX', 2, [0], X[1])
+    CZ = MCU('CX', 2, [0], Z[1])
+    CCX = MCU('CCX', 3, [0, 1], X[2])
+    CCZ = MCU('CCZ', 3, [0, 2], Z[2])
 
     I.set_typical()
     H.set_typical()
     X.set_typical()
     Y.set_typical()
     Z.set_typical()
+    CX.set_typical()
     CZ.set_typical()
 
     def __init__(self):
