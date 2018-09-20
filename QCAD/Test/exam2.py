@@ -1,9 +1,6 @@
 from QCAD import Module, QuantumCircuit, execute
 from QCAD import TypicalModule as tm
 
-#
-from QCAD import Backend
-
 import numpy as np
 
 rx_half_pi = tm.RX(np.pi/2)
