@@ -16,7 +16,7 @@ class Module(object):
         for _ind_module in ind_modules:
             self.sub_modules.append(_ind_module[0])
             self.reg_indices.append(_ind_module[1])
-            for _ind_module1 in range(_ind_module[1].n):
+            for _ind_module1 in range(len(_ind_module[1])):
                 if not _ind_module[1][_ind_module1] < self.n:
                     raise IndexError
 
@@ -48,7 +48,7 @@ class Module(object):
                 temp_decom = temp_sub_modules[i].typ_decompose()
 
                 del temp_sub_modules[i]
-                for j in range(temp_decom[0].n):
+                for j in range(len(temp_decom[0])):
                     temp_sub_modules.insert(i+j, temp_decom[0][j])
 
                 del temp_reg_indices[i]
@@ -64,7 +64,7 @@ class Module(object):
 class TypicalModule:
     class U(Module):
         def __init__(self, name, n, matrix):
-            super.__init__(self, name, n)
+            super().__init__(name, n)
             self.matrix_only_defined = True
             self.matrix = np.array(matrix)
 
@@ -72,9 +72,8 @@ class TypicalModule:
         def __init__(self, name, n, control_bits, applied_module):
             # TODO: applied_module이 1개 이상 들어오는 경우 에러 처리 필요
 
-            super.__init__(self, name, n, [applied_module])
+            super().__init__(name, n, [applied_module])
             self.controlled = True
-            self.matrix_only_defined = applied_module.matrix_only_defined
             self.control_bits = control_bits
 
     I = Module('I', 1)

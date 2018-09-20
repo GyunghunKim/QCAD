@@ -2,10 +2,10 @@
 
 import numpy as np
 import math
-import copy
+from copy import deepcopy
 
-from .. import TypicalModule
 from . import Backend
+from .. import TypicalModule
 from .. import QuantumCircuit
 
 
@@ -34,7 +34,7 @@ class MatrixModel(Backend):
     #TypicalMatrix dictionary는 알려진 모듈의 이름과 행렬을 관계지음.
     PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'CX':CX, 'CZ':CZ}
 
-    def __init__(self, quantum_circuit):
+    def __init__(self):
         pass
 
     @staticmethod
@@ -83,7 +83,7 @@ class MatrixModel(Backend):
     @staticmethod
     def get_controlled_modulematrix(module: TypicalModule.MCU):
         # 재귀적 처리를 통해 MCU의 행렬 표현을 구한다.
-        _module = module.copy()
+        _module = deepcopy(module)
 
         if not module.control_bits:
             _module.controlled = False
@@ -98,19 +98,17 @@ class MatrixModel(Backend):
             if 0 in _module.reg_indices[0]:
                 _module.reg_indices[0][_module.reg_indices[0].index(0)] = _a
 
-            _module.n -= 1
-            for control_bit in _module.control_bits:
-                control_bit -= 1
-            for reg_index in _module.reg_indices[0]:
-                reg_index -= 1
-
             _permutation_matrix = MatrixModel.get_permutationmatrix(_module.n, 0, _a)
 
         _module.control_bits.remove(0)
+        _module.n -= 1
+        _module.control_bits[:] = [x - 1 for x in _module.control_bits]
+        _module.reg_indices[0][:] = [x - 1 for x in _module.reg_indices[0]]
 
+        _dim = 2 ** _module.n
         return np.linalg.inv(_permutation_matrix) \
-               @ np.block([[np.eye(2 ** _module.n), np.zeros(2 ** _module.n)],
-                           [np.zeros(2 ** _module.n)], MatrixModel.get_controlled_modulematrix(_module)]) \
+               @ np.block([[np.eye(_dim), np.zeros((_dim, _dim))],
+                           [np.zeros((_dim, _dim)), MatrixModel.get_controlled_modulematrix(_module)]]) \
                @ _permutation_matrix
 
 
@@ -143,8 +141,8 @@ class MatrixModel(Backend):
         return _temp_permutation_matrix
 
     @staticmethod
-    def run(quantum_circuit: QuantumCircuit, initial_state = []):
-        #initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
+    def run(quantum_circuit: QuantumCircuit, initial_state=[]):
+        # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
         _state_vector = [1]
         if not initial_state:
             _state_vector = [0.] * 2 ** quantum_circuit.n
