@@ -63,18 +63,33 @@ class Module(object):
 
 class TypicalModule:
     class U(Module):
-        def __init__(self, name, n, matrix):
-            super().__init__(name, n)
+        def __init__(self, n, matrix):
+            super().__init__('U', n)
             self.matrix_only_defined = True
             self.matrix = np.array(matrix)
 
     class MCU(Module):
-        def __init__(self, name, n, control_bits, applied_module):
+        def __init__(self, n, control_bits, applied_module):
             # TODO: applied_module이 1개 이상 들어오는 경우 에러 처리 필요
 
-            super().__init__(name, n, [applied_module])
+            super().__init__('MCU', n, [applied_module])
             self.controlled = True
             self.control_bits = control_bits
+
+    class RX(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)*1.j],
+                                 [-np.sin(theta/2)*1.j, np.cos(theta/2)]])
+
+    class RY(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)],
+                                 [np.sin(theta/2), np.cos(theta/2)]])
+
+    class RZ(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2)-np.sin(theta/2)*1.j, 0],
+                                 [0, np.cos(theta/2)+np.sin(theta/2)*1.j]])
 
     I = Module('I', 1)
     H = Module('H', 1)
@@ -84,7 +99,7 @@ class TypicalModule:
     CX = MCU('CX', 2, [0], X[1])
     CZ = MCU('CX', 2, [0], Z[1])
     CCX = MCU('CCX', 3, [0, 1], X[2])
-    CCZ = MCU('CCZ', 3, [0, 2], Z[2])
+    CCZ = MCU('CCZ', 3, [0, 1], Z[2])
 
     I.set_typical()
     H.set_typical()

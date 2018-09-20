@@ -20,36 +20,38 @@ def is_unitary(matrix: np.ndarray) -> bool:
 
     return unitary
 
-# M = Module('M', 5, [tm.H[3],
-#                     tm.CZ[1, 2],
-#                     tm.Z[4]])
-# N = Module('N', 8, [tm.H[1],
-#                     M[0, 2, 3, 4, 5]])
-#
-# S = Module('S', 2, [tm.CZ[1, 0]])
-# U = Module('U', 3, [tm.H[1]])
-# W = Module('W', 3, [S[0, 1],
-#                     U[0, 2, 1]])
-#
-# print(N.typ_decompose())
-#
-# qc = QuantumCircuit(U)
+M = Module('M', 5, [tm.H[3],
+                    tm.CZ[1, 2],
+                    tm.Z[4]])
+N = Module('N', 8, [tm.H[1],
+                    M[0, 2, 3, 4, 5]])
 
-# N_matrix = Backend.MatrixModel.get_modulematrix(N)
-# print(N_matrix, '\n', is_unitary(N_matrix))
-#
-# print(Backend.MatrixModel.get_modulematrix(S))
-#
-# print(Backend.MatrixModel.get_modulematrix(U))
-#
-# W_matrix = Backend.MatrixModel.get_modulematrix(W)
-# print(W_matrix, '\n', is_unitary(W_matrix))
+S = Module('S', 2, [tm.CZ[1, 0]])
+U = Module('U', 3, [tm.H[1]])
+W = Module('W', 3, [S[0, 1],
+                    U[0, 2, 1]])
 
-# print(Backend.MatrixModel.get_modulematrix(qc.module))
-# print(Backend.MatrixModel.run(qc, [[1, 0], [0, 1], [1.0j, 0]]))
+print(N.typ_decompose())
+
+qc = QuantumCircuit(U)
+
+N_matrix = Backend.MatrixModel.get_modulematrix(N)
+print(N_matrix, '\n', is_unitary(N_matrix))
+
+print(Backend.MatrixModel.get_modulematrix(S))
+
+print(Backend.MatrixModel.get_modulematrix(U))
+
+W_matrix = Backend.MatrixModel.get_modulematrix(W)
+print(W_matrix, '\n', is_unitary(W_matrix))
+
+print(Backend.MatrixModel.get_modulematrix(qc.module))
+print(Backend.MatrixModel.run(qc, [[1, 0], [0, 1], [1.0j, 0]]))
 
 print(Backend.MatrixModel.get_controlled_modulematrix(tm.MCU('CustomCX', 3, [0, 1], tm.X[2])))
 custom_gate = tm.U('CustomU', 1, np.multiply(2**-0.5, [[1, 1], [1, -1]]))
 print(Backend.MatrixModel.get_controlled_modulematrix(tm.MCU('CustomCX', 3, [0], custom_gate[2])))
+
+execute('MatrixModel', qc)
 
 print('done')
