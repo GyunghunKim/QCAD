@@ -80,32 +80,41 @@ class TypicalModule:
         def __init__(self, theta):
             super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)*1.j],
                                  [-np.sin(theta/2)*1.j, np.cos(theta/2)]])
+            self.name = 'RX'
 
     class RY(U):
         def __init__(self, theta):
             super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)],
                                  [np.sin(theta/2), np.cos(theta/2)]])
+            self.name = 'RY'
 
     class RZ(U):
         def __init__(self, theta):
             super().__init__(1, [[np.cos(theta/2)-np.sin(theta/2)*1.j, 0],
                                  [0, np.cos(theta/2)+np.sin(theta/2)*1.j]])
+            self.name = 'RZ'
 
     I = Module('I', 1)
     H = Module('H', 1)
     X = Module('X', 1)
     Y = Module('Y', 1)
     Z = Module('Z', 1)
-    CX = MCU('CX', 2, [0], X[1])
-    CZ = MCU('CX', 2, [0], Z[1])
-    CCX = MCU('CCX', 3, [0, 1], X[2])
-    CCZ = MCU('CCZ', 3, [0, 1], Z[2])
+    T = Module('T', 1)
+    CX = MCU(2, [0], X[1])
+    CX.name = 'CX'
+    CZ = MCU(2, [0], Z[1])
+    CZ.name = 'CZ'
+    CCX = MCU(3, [0, 1], X[2])
+    CCX.name = 'CCX'
+    CCZ = MCU(3, [0, 1], Z[2])
+    CCZ.name = 'CCZ'
 
     I.set_typical()
     H.set_typical()
     X.set_typical()
     Y.set_typical()
     Z.set_typical()
+    T.set_typical()
     CX.set_typical()
     CZ.set_typical()
 

@@ -78,7 +78,7 @@ class MatrixModel(Backend):
 
                 _module_matrix = _sub_module_matrix @ _module_matrix
 
-                return _module_matrix
+            return _module_matrix
 
     @staticmethod
     def get_controlled_modulematrix(module: TypicalModule.MCU):
