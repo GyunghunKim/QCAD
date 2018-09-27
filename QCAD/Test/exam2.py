@@ -1,4 +1,4 @@
-from QCAD import Module, QuantumCircuit, execute
+from QCAD import Module, QuantumCircuit, execute, circuit_drawer
 from QCAD import TypicalModule as tm
 
 import numpy as np
@@ -23,5 +23,7 @@ my_module = Module('M', 4, [tm.H[0],
                             tm.CX[2, 0]])
 
 qc = QuantumCircuit(my_module)
+
+circuit_drawer(qc)
 
 execute('MatrixModel', qc)
