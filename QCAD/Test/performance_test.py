@@ -13,23 +13,12 @@ def runtime(f):
 
 
 @runtime
-def n_qubit_gate():
-    my_module = Module('M', 11, [tm.H[0],
-                                tm.H[1],
-                                tm.H[2],
-                                tm.H[3],
-                                tm.CX[3, 2],
-                                tm.Y[1],
-                                tm.Z[2],
-                                tm.H[0],
-                                tm.T[1],
-                                tm.T[2],
-                                tm.CX[3, 2],
-                                tm.CX[2, 0]])
-
-    qc = QuantumCircuit(my_module)
-
+def matrix_model():
     execute('MatrixModel', qc, option='NoPrint')
+
+@runtime
+def optimized_gate_extended():
+    execute('OptimizedGate_Extended', qc, option='NoPrint')
 
 #8 qubits = 0.3710s
 #9 qubits = 2.0160s
@@ -38,4 +27,8 @@ def n_qubit_gate():
 #12 qubits = 537.9753s
 
 if __name__ == '__main__':
-    n_qubit_gate()
+    my_module = Module('M', 21, [tm.H[1]])
+    qc = QuantumCircuit(my_module)
+
+    # matrix_model()
+    optimized_gate_extended()

@@ -153,8 +153,6 @@ class MatrixModel(Backend):
             for _state in initial_state:
                 _state_vector = np.kron(_state, _state_vector)
 
-        _state_vector = np.array([_state_vector]).T
+        _result = np.matmul(MatrixModel.get_modulematrix(quantum_circuit.module), np.asarray(_state_vector).T)
 
-        _result = MatrixModel.get_modulematrix(quantum_circuit.module) @ _state_vector
-
-        return _result
+        return _result.T.tolist()

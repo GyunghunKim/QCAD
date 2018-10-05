@@ -74,7 +74,7 @@ class TypicalModule:
 
             super().__init__('MCU', n, [applied_module])
             self.controlled = True
-            self.control_bits = control_bits
+            self.control_bits = sorted(control_bits)
 
     class RX(U):
         def __init__(self, theta):
