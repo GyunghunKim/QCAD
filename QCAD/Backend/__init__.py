@@ -1,6 +1,5 @@
 from .backend import Backend
 
 from .matrixmodel import MatrixModel
-
-from .nomm import Nomm
-from .comm import Comm
+from .optimizedgate import OptimizedGate
+from .optimizedgate_extended import OptimizedGateExtended

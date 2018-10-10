@@ -1,9 +1,12 @@
 # Module for class Matrix Model
 
-from .. import Module
-from . import Backend
 import numpy as np
 import math
+from copy import deepcopy
+
+from . import Backend
+from .. import TypicalModule
+from .. import QuantumCircuit
 
 
 class MatrixModel(Backend):
@@ -19,51 +22,95 @@ class MatrixModel(Backend):
          [0., 1.]]
     T = [[1., 0.],
          [0., np.exp(math.pi / 4 * 1.0j)]]
-    CZ = [[1., 0., 0., 0.],
+    CX = [[1., 0., 0., 0.],
           [0., 1., 0., 0.],
           [0., 0., 0., 1.],
           [0., 0., 1., 0.]]
+    CZ = [[1., 0., 0., 0.],
+          [0., 1., 0., 0.],
+          [0., 0., 1., 0.],
+          [0., 0., 0., -1.]]
 
     #TypicalMatrix dictionary는 알려진 모듈의 이름과 행렬을 관계지음.
-    TypicalMatrix = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'CZ':CZ}
+    PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'CX':CX, 'CZ':CZ}
 
-    def __init__(self, quantum_circuit):
+    def __init__(self):
         pass
 
     @staticmethod
-    def get_modulematrix(module: Module):
+    def get_modulematrix(module):
         # 모듈을 받아서 행렬로 바꿔주는 함수
         # TODO: 최적화 가능한 알고리즘이므로 추가적인 개발 필요.
 
-        if module.typical is True:
-            return MatrixModel.TypicalMatrix[module.name]
+        if module.name in MatrixModel.PreDefinedModeules:
+            return MatrixModel.PreDefinedModeules[module.name]
 
-        _module_matrix = np.eye(2 ** len(module), dtype='complex')
+        elif module.matrix_only_defined is True:
+            return module.matrix
 
-        for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
+        elif module.controlled is True:
+            return MatrixModel.get_controlled_modulematrix(module)
 
-            # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
-            _permutation_matrix = np.eye(2 ** len(module))
+        else:
+            _module_matrix = np.eye(2 ** module.n, dtype='complex')
 
-            _temp_array = list(range(len(module)))
+            for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
 
-            for _i in range(len(_index)):
-                if _temp_array[_i] is not _index[_i]:
-                    _a, _b = _i, _temp_array.index(_index[_i])
-                    _temp_array[_b], _temp_array[_a] = _temp_array[_a], _temp_array[_b]
-                    _permutation_matrix = MatrixModel.get_permutationmatrix(len(module), _a, _b) @ _permutation_matrix
+                # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
+                _permutation_matrix = np.eye(2 ** module.n)
 
-            _temp_module_matrix = MatrixModel.get_modulematrix(_sub_module)
+                _temp_array = list(range(module.n))
 
-            for _i in range(len(module) - len(_index)):
-                _temp_module_matrix = np.kron(MatrixModel.TypicalMatrix['I'], _temp_module_matrix)
+                for _i in range(len(_index)):
+                    if _temp_array[_i] is not _index[_i]:
+                        _a, _b = _i, _temp_array.index(_index[_i])
+                        _temp_array[_b], _temp_array[_a] = _temp_array[_a], _temp_array[_b]
+                        _permutation_matrix = MatrixModel.get_permutationmatrix(module.n, _a,
+                                                                                _b) @ _permutation_matrix
 
-            # 모듈의 matrix를 구한다.
-            _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
+                _temp_module_matrix = MatrixModel.get_modulematrix(_sub_module)
 
-            _module_matrix = _sub_module_matrix @ _module_matrix
+                for _i in range(module.n - len(_index)):
+                    _temp_module_matrix = np.kron(MatrixModel.PreDefinedModeules['I'], _temp_module_matrix)
 
-        return _module_matrix
+                # 모듈의 matrix를 구한다.
+                _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
+
+                _module_matrix = _sub_module_matrix @ _module_matrix
+
+            return _module_matrix
+
+    @staticmethod
+    def get_controlled_modulematrix(module: TypicalModule.MCU):
+        # 재귀적 처리를 통해 MCU의 행렬 표현을 구한다.
+        _module = deepcopy(module)
+
+        if not module.control_bits:
+            _module.controlled = False
+            return MatrixModel.get_modulematrix(_module)
+
+        _permutation_matrix = np.eye(2 ** _module.n)
+
+        if 0 not in _module.control_bits:
+            _a = _module.control_bits[0]
+            _module.control_bits[0] = 0
+
+            if 0 in _module.reg_indices[0]:
+                _module.reg_indices[0][_module.reg_indices[0].index(0)] = _a
+
+            _permutation_matrix = MatrixModel.get_permutationmatrix(_module.n, 0, _a)
+
+        _module.control_bits.remove(0)
+        _module.n -= 1
+        _module.control_bits[:] = [x - 1 for x in _module.control_bits]
+        _module.reg_indices[0][:] = [x - 1 for x in _module.reg_indices[0]]
+
+        _dim = 2 ** _module.n
+        return np.linalg.inv(_permutation_matrix) \
+               @ np.block([[np.eye(_dim), np.zeros((_dim, _dim))],
+                           [np.zeros((_dim, _dim)), MatrixModel.get_controlled_modulematrix(_module)]]) \
+               @ _permutation_matrix
+
 
     @staticmethod
     def get_permutationmatrix(n, i, j):
@@ -93,3 +140,19 @@ class MatrixModel(Backend):
 
         return _temp_permutation_matrix
 
+    @staticmethod
+    def run(quantum_circuit: QuantumCircuit, initial_state=[]):
+        # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
+        _state_vector = [1]
+        if not initial_state:
+            _state_vector = [0.] * 2 ** quantum_circuit.n
+            _state_vector[0] = 1.
+        elif len(initial_state) is 2 ** quantum_circuit.n:
+            _state_vector = initial_state[:]
+        elif len(initial_state) is quantum_circuit.n:
+            for _state in initial_state:
+                _state_vector = np.kron(_state, _state_vector)
+
+        _result = np.matmul(MatrixModel.get_modulematrix(quantum_circuit.module), np.asarray(_state_vector).T)
+
+        return _result.T.tolist()

@@ -1,7 +1,11 @@
 # Module for class Backend
 
+from .. import QuantumCircuit
 
 class Backend(object):
-    def __init__(self, quantum_circuit):
-        self.runable = False
-        self.quantum_circuit = quantum_circuit
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def run(quantum_circuit: QuantumCircuit, initial_state=[]):
+        ...

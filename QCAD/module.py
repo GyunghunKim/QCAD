@@ -1,4 +1,5 @@
 # Module of class Module (Quantum Gates)
+import numpy as np
 
 
 class Module(object):
@@ -9,6 +10,8 @@ class Module(object):
         self.sub_modules = []
         self.reg_indices = []
         self.typical= False
+        self.matrix_only_defined = False
+        self.controlled = False
 
         for _ind_module in ind_modules:
             self.sub_modules.append(_ind_module[0])
@@ -57,23 +60,62 @@ class Module(object):
 
         return temp_sub_modules, temp_reg_indices
 
-    def __len__(self):
-        return self.n
-
 
 class TypicalModule:
+    class U(Module):
+        def __init__(self, n, matrix):
+            super().__init__('U', n)
+            self.matrix_only_defined = True
+            self.matrix = np.array(matrix)
+
+    class MCU(Module):
+        def __init__(self, n, control_bits, applied_module):
+            # TODO: applied_module이 1개 이상 들어오는 경우 에러 처리 필요
+
+            super().__init__('MCU', n, [applied_module])
+            self.controlled = True
+            self.control_bits = sorted(control_bits)
+
+    class RX(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)*1.j],
+                                 [-np.sin(theta/2)*1.j, np.cos(theta/2)]])
+            self.name = 'RX'
+
+    class RY(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)],
+                                 [np.sin(theta/2), np.cos(theta/2)]])
+            self.name = 'RY'
+
+    class RZ(U):
+        def __init__(self, theta):
+            super().__init__(1, [[np.cos(theta/2)-np.sin(theta/2)*1.j, 0],
+                                 [0, np.cos(theta/2)+np.sin(theta/2)*1.j]])
+            self.name = 'RZ'
+
     I = Module('I', 1)
     H = Module('H', 1)
     X = Module('X', 1)
     Y = Module('Y', 1)
     Z = Module('Z', 1)
-    CZ = Module('CZ', 2)
+    T = Module('T', 1)
+    CX = MCU(2, [0], X[1])
+    CX.name = 'CX'
+    CZ = MCU(2, [0], Z[1])
+    CZ.name = 'CZ'
+    CCX = MCU(3, [0, 1], X[2])
+    CCX.name = 'CCX'
+    CCZ = MCU(3, [0, 1], Z[2])
+    CCZ.name = 'CCZ'
 
     I.set_typical()
     H.set_typical()
     X.set_typical()
     Y.set_typical()
     Z.set_typical()
+    T.set_typical()
+    CX.set_typical()
     CZ.set_typical()
 
     def __init__(self):
