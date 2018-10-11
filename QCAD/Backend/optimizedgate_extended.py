@@ -39,21 +39,14 @@ class OptimizedGateExtended(Backend):
     def get_mapped_index(index, n, j, i):
         # map index from n-state vector to len(index)-state vector, j is key and i is trash
 
-        _bin = [-1] * n
-        for _i in range(len(index)):
-            _bin[n-index[_i]-1] = (j & (1 << _i)) >> _i
+        _i = i
+        _ordered_index = sorted(zip(index, range(len(index))), key=lambda x: x[0])
 
-        _i = 0
-        for _j in range(n):
-            if _bin[_j] is -1:
-                _bin[_j] = (i & (1 << _i)) >> _i
-                _i += 1
+        for _index_in_i, _index_in_j in _ordered_index:
+            _comb = ~0 >> _index_in_i;
+            _i = ((_i & _comb) >> 2) | (((j >> _index_in_j) & 1) << (_index_in_i + 1)) | (_i & _comb);
 
-        _out = 0
-        for _bit in _bin:
-            _out = (_out << 1) | _bit
-
-        return _out
+        return _i
 
     @staticmethod
     def run(quantum_circuit: QuantumCircuit, initial_state=[]):
