@@ -44,7 +44,7 @@ class OptimizedGateExtended(Backend):
 
         for _index_in_i, _index_in_j in _ordered_index:
             _comb = ~0 >> _index_in_i;
-            _i = ((_i & _comb) >> 2) | (((j >> _index_in_j) & 1) << (_index_in_i + 1)) | (_i & _comb);
+            _i = ((_i & _comb) >> 2) | (((j >> _index_in_j) & 1) << (_index_in_i + 1)) | (_i & ~_comb);
 
         return _i
 
