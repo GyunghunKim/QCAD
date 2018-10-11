@@ -15,10 +15,6 @@ class OptimizedGateExtended(Backend):
     @staticmethod
     def decompose(module: Module):
         # 모듈을 기본적인 모듈(게이트)로 분해해주는 함수
-
-        class UnsupportableGateError(Exception):
-            pass
-
         temp_sub_modules = module.sub_modules.copy()
         temp_reg_indices = module.reg_indices.copy()
 
@@ -42,6 +38,7 @@ class OptimizedGateExtended(Backend):
     @staticmethod
     def get_mapped_index(index, n, j, i):
         # map index from n-state vector to len(index)-state vector, j is key and i is trash
+
         _bin = [-1] * n
         for _i in range(len(index)):
             _bin[n-index[_i]-1] = (j & (1 << _i)) >> _i
