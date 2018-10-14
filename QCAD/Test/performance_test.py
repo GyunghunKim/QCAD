@@ -18,16 +18,16 @@ def matrix_model():
 
 @runtime
 def optimized_gate_extended():
-    execute('OptimizedGate_Extended', qc, option='NoPrint')
+    execute('OptimizedGate_Extended', qc,option='NoPrint')
 
 #8 qubits = 0.3710s
 #9 qubits = 2.0160s
 #10 qubits = 9.8787s
 #11 qubits = 67.7230s
-#12 qubits = 537.9753s
+#12 qubits = 0.0544s
 
 if __name__ == '__main__':
-    my_module = Module('M', 21, [tm.H[1]])
+    my_module = Module('M', 22, [tm.H[0]])
     qc = QuantumCircuit(my_module)
 
     # matrix_model()
