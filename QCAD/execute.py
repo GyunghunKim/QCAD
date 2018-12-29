@@ -10,16 +10,19 @@ def execute(backend, quantum_circuit: QuantumCircuit, initial_state = [], option
     # TODO: 무엇을 리턴할 지 생각해 보아야 함.
 
     # No Optimized Matrix Model
-    if backend is "MatrixModel":
+    if backend == "MatrixModel":
         _res = Backend.MatrixModel.run(quantum_circuit, initial_state)
 
-    if backend is "OptimizedGate":
+    if backend == "OptimizedGate":
         _res = Backend.OptimizedGate.run(quantum_circuit, initial_state)
 
-    if backend is "OptimizedGate_Extended":
+    if backend == "OptimizedGate_Extended":
         _res = Backend.OptimizedGateExtended.run(quantum_circuit, initial_state)
 
-    if option is "NoPrint":
+    if backend == "Cimulator":
+        _res = Backend.Cimulator.run(quantum_circuit, initial_state)
+
+    if option == "NoPrint":
         return
 
     print(_res)
