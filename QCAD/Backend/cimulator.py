@@ -5,6 +5,7 @@ import math
 import os
 
 from ctypes import *
+from numpy.ctypeslib import ndpointer
 
 from . import Backend
 from .. import TypicalModule
@@ -33,6 +34,6 @@ class Cimulator(Backend):
 
         csim.printQCStatus()
 
-        
+        csim.run()
 
         return []

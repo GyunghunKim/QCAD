@@ -5,7 +5,8 @@ field X[2][2] = {{0, 1}, {1, 0}};
 field Y[2][2] = {{0, 1i}, {-1i, 0}};
 field Z[2][2] = {{1, 0}, {0, -1}}; 
 field I[2][2] = {{1, 0}, {0, 1}};
-field T[2][2] = {{1, 0}, {0, std::exp(PI/4*1i)}};
+field T[2][2] = {{1, 0}, {0, sqrt(0.5)+sqrt(0.5)*1i}};
+field S[2][2] = {{1, 0}, {0, 1i}};
 
 field (*gateParser(std::string gate_name))[2] {
 	if (gate_name.compare("H") == 0)
@@ -20,7 +21,8 @@ field (*gateParser(std::string gate_name))[2] {
 		return I;
 	if (gate_name.compare("T") == 0)
 		return T;
-
+	if (gate_name.compare("S") == 0)
+		return S;
 	return NULL;
 }
 
