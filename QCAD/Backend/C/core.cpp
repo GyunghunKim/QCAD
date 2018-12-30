@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <ctime>
 
 int num_qubit;
 std::vector<Gate> gates;
@@ -47,16 +48,20 @@ extern "C" void run() {
 
 	double *prob = new double[(int)std::exp2(num_qubit)]();
 	
+	std::clock_t begin = std::clock();
 	for (int i = 0; i < gates.size(); i++) {
 		applySingleGate(gates[i].name, gates[i].targets[0], state, num_qubit);
 	}
 
 	for (int i = 0; i < std::exp2(num_qubit); i++)
 		prob[i] = std::abs(state[i]);
+	std::clock_t end = std::clock();
 
 	for (int i = 0; i < std::exp2(num_qubit); i++)
 		if (prob[i] != 0) {
 			printBit(i, num_qubit, true);
 			std::cout << ": " << prob[i]*prob[i] << std::endl;
 		}
+
+	std::cout << "Elapsed Time: " << (double)(end - begin)/CLOCKS_PER_SEC << std::endl << std::endl;
 }
