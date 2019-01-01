@@ -100,6 +100,7 @@ class TypicalModule:
     Y = Module('Y', 1)
     Z = Module('Z', 1)
     T = Module('T', 1)
+    S = Module('S', 1)
     CX = MCU(2, [0], X[1])
     CX.name = 'CX'
     CZ = MCU(2, [0], Z[1])
@@ -115,6 +116,7 @@ class TypicalModule:
     Y.set_typical()
     Z.set_typical()
     T.set_typical()
+    S.set_typical()
     CX.set_typical()
     CZ.set_typical()
 
