@@ -26,14 +26,21 @@ class Cimulator(Backend):
 
         _gates = quantum_circuit.module.typ_decompose()
         for (_gate, _indices) in zip(_gates[0], _gates[1]):
-            _num_target = len(_indices)
-            _c_index_array = (c_int * len(_indices))(*_indices)
-            _gate_name = _gate.name
+           pass 
+        #    _ Cimulator.sendGateToBackend(_gate, _indices)
+        #    _num_target = len(_indices)
+        #    _c_index_array = (c_int * len(_indices))(*_indices)
+        #    _gate_name = _gate.name
 
-            csim.addGate(_gate_name, _c_index_array, _num_target)
+        #    csim.addGate(_gate_name, _c_index_array, _num_target)
 
         csim.printQCStatus()
 
         csim.run()
 
         return []
+
+#    @staticmethod
+#    def sendGateToBackend(module: Module, indices):
+
+

@@ -50,7 +50,8 @@ extern "C" void run() {
 	
 	std::clock_t begin = std::clock();
 	for (int i = 0; i < gates.size(); i++) {
-		applySingleGate(gates[i].name, gates[i].targets[0], state, num_qubit);
+		if (gates[i].targets.size() == 1)
+			applySingleGate(gates[i].name, gates[i].targets[0], state, num_qubit);
 	}
 
 	for (int i = 0; i < std::exp2(num_qubit); i++)

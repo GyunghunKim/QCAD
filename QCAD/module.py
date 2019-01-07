@@ -20,17 +20,17 @@ class Module(object):
                 if not _ind_module[1][_ind_module1] < self.n:
                     raise IndexError
 
-    def set_typical(self):
-        self.typical=True
+    def set_typical(self, typical):
+        self.typical=typical
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            if self.n is not 1:
-                raise RegistermatchError()
+            if self.n != 1:
+                raise RegisterMatchError()
             return [self, [item]]
 
         if len(item) is not self.n:
-            raise RegistermatchError()
+            raise RegisterMatchError()
 
         return [self, item]
 
@@ -53,7 +53,7 @@ class Module(object):
 
                 del temp_reg_indices[i]
                 for k in range(len(temp_decom[1])):
-                    temp_indices = []
+                    temp_indices = [] 
                     for l in temp_decom[1][k]:
                         temp_indices.append(self.reg_indices[i][l])
                     temp_reg_indices.insert(i + k, temp_indices)
@@ -63,36 +63,51 @@ class Module(object):
 
 class TypicalModule:
     class U(Module):
-        def __init__(self, n, matrix):
-            super().__init__('U', n)
+        def __init__(self, name, n, matrix):
+            super().__init__(name, n)
             self.matrix_only_defined = True
             self.matrix = np.array(matrix)
+            self.set_typical(True)
 
     class MCU(Module):
-        def __init__(self, n, control_bits, applied_module):
+        def __init__(self, name, n, control_bits, applied_module):
             # TODO: applied_module이 1개 이상 들어오는 경우 에러 처리 필요
 
-            super().__init__('MCU', n, [applied_module])
+            super().__init__(name, n, [applied_module])
             self.controlled = True
             self.control_bits = sorted(control_bits)
 
+        def typ_decompose(self):
+            _sub_modules, _reg_indices = super().typ_decompose()
+
+            _sub_mcus = list()
+            for _sub_module, _reg_index in zip(_sub_modules, _reg_indices):
+                _temp_mcu = TypicalModule.MCU(self.name, self.n, self.control_bits, [_sub_module, _reg_index])
+                _temp_mcu.set_typical(True)
+                _sub_mcus.append(_temp_mcu)
+
+            return _sub_mcus, [list(range(self.n))]*len(_sub_mcus)
+
     class RX(U):
-        def __init__(self, theta):
-            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)*1.j],
-                                 [-np.sin(theta/2)*1.j, np.cos(theta/2)]])
-            self.name = 'RX'
+        def __init__(self, name, theta):
+            super().__init__(name, 1, [[np.cos(theta/2), -np.sin(theta/2)*1.j],
+                [-np.sin(theta/2)*1.j, np.cos(theta/2)]])
+            self.name = name
+            self.set_typical(True)
 
     class RY(U):
-        def __init__(self, theta):
-            super().__init__(1, [[np.cos(theta/2), -np.sin(theta/2)],
-                                 [np.sin(theta/2), np.cos(theta/2)]])
-            self.name = 'RY'
+        def __init__(self, name, theta):
+            super().__init__(name, 1, [[np.cos(theta/2), -np.sin(theta/2)],
+                [np.sin(theta/2), np.cos(theta/2)]])
+            self.name = name
+            self.set_typical(True)
 
     class RZ(U):
-        def __init__(self, theta):
-            super().__init__(1, [[np.cos(theta/2)-np.sin(theta/2)*1.j, 0],
-                                 [0, np.cos(theta/2)+np.sin(theta/2)*1.j]])
-            self.name = 'RZ'
+        def __init__(self, name, theta):
+            super().__init__(name, 1, [[np.cos(theta/2)-np.sin(theta/2)*1.j, 0],
+                [0, np.cos(theta/2)+np.sin(theta/2)*1.j]])
+            self.name = name
+            self.set_typical(True)
 
     I = Module('I', 1)
     H = Module('H', 1)
@@ -101,28 +116,26 @@ class TypicalModule:
     Z = Module('Z', 1)
     T = Module('T', 1)
     S = Module('S', 1)
-    CX = MCU(2, [0], X[1])
-    CX.name = 'CX'
-    CZ = MCU(2, [0], Z[1])
-    CZ.name = 'CZ'
-    CCX = MCU(3, [0, 1], X[2])
-    CCX.name = 'CCX'
-    CCZ = MCU(3, [0, 1], Z[2])
-    CCZ.name = 'CCZ'
+    CX = MCU('CX', 2, [0], X[1])
+    CZ = MCU('CZ', 2, [0], Z[1])
+    CCX = MCU('CCX', 3, [0, 1], X[2])
+    CCZ = MCU('CCZ', 3, [0, 1], Z[2])
 
-    I.set_typical()
-    H.set_typical()
-    X.set_typical()
-    Y.set_typical()
-    Z.set_typical()
-    T.set_typical()
-    S.set_typical()
-    CX.set_typical()
-    CZ.set_typical()
+    I.set_typical(True)
+    H.set_typical(True)
+    X.set_typical(True)
+    Y.set_typical(True)
+    Z.set_typical(True)
+    T.set_typical(True)
+    S.set_typical(True)
 
     def __init__(self):
         pass
 
 
-class RegistermatchError(Exception):
+
+class RegisterMatchError(Exception):
+    pass
+
+class MCUModuleTypeError(Exception):
     pass
