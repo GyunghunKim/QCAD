@@ -1,6 +1,7 @@
 # Module of class Module (Quantum Gates)
 import numpy as np
 
+import copy
 
 class Module(object):
     def __init__(self, name, n, ind_modules=[]):
@@ -29,7 +30,7 @@ class Module(object):
         print(f'contolled   :{self.controlled}')
 
     def set_typical(self, typical):
-        self.typical=typical
+        self.typical = typical
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -86,6 +87,7 @@ class TypicalModule:
             self.control_bits = sorted(control_bits)
 
         def typ_decompose(self):
+            _temp_self = copy.deepcopy(self)
             _sub_modules, _reg_indices = super().typ_decompose()
 
             _port_indices = list()
@@ -96,19 +98,19 @@ class TypicalModule:
 
                 if _sub_module.controlled is True:
                     for _sub_control_bit in _sub_module.control_bits:
-                        self.control_bits.append(_reg_index[_sub_control_bit])
+                        _temp_self.control_bits.append(_reg_index[_sub_control_bit])
                     for _sub_control_bit in sorted(_sub_module.control_bits,
                             reverse=True):
                         del _reg_index[_sub_control_bit]
                     _core_module = _sub_module.sub_modules[0]
-                _temp_n = len(self.control_bits) + len(_reg_index)
+                _temp_n = len(_temp_self.control_bits) + len(_reg_index)
 
-                _temp_port_index = list(self.control_bits)
+                _temp_port_index = list(_temp_self.control_bits)
                 _temp_port_index.extend(_reg_index)
 
-                _temp_mcu = TypicalModule.MCU(self.name, _temp_n,
-                        list(range(len(self.control_bits))),
-                        [_core_module, list(range(len(self.control_bits),
+                _temp_mcu = TypicalModule.MCU(_temp_self.name, _temp_n,
+                        list(range(len(_temp_self.control_bits))),
+                        [_core_module, list(range(len(_temp_self.control_bits),
                             _temp_n))])
                 _temp_mcu.set_typical(True)
                 _sub_mcus.append(_temp_mcu)
