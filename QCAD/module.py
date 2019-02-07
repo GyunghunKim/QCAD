@@ -9,7 +9,7 @@ class Module(object):
         self.n = n
         self.sub_modules = []
         self.reg_indices = []
-        self.typical= False
+        self.typical = False
         self.matrix_only_defined = False
         self.controlled = False
 
@@ -19,6 +19,14 @@ class Module(object):
             for _ind_module1 in range(len(_ind_module[1])):
                 if not _ind_module[1][_ind_module1] < self.n:
                     raise IndexError
+
+    def show(self):
+        print(f'Name        :{self.name}')
+        print(f'N           :{self.n}')
+        print(f'sub_modules :{self.sub_modules}')
+        print(f'reg_indices :{self.reg_indices}')
+        print(f'typical     :{self.typical}')
+        print(f'contolled   :{self.controlled}')
 
     def set_typical(self, typical):
         self.typical=typical
@@ -32,7 +40,7 @@ class Module(object):
         if len(item) is not self.n:
             raise RegisterMatchError()
 
-        return [self, item]
+        return [self, list(item)]
 
     def get_submodules(self):
         #모듈의 sub_modules의 정보를 얻는 함수
@@ -80,13 +88,38 @@ class TypicalModule:
         def typ_decompose(self):
             _sub_modules, _reg_indices = super().typ_decompose()
 
+            _port_indices = list()
             _sub_mcus = list()
             for _sub_module, _reg_index in zip(_sub_modules, _reg_indices):
-                _temp_mcu = TypicalModule.MCU(self.name, self.n, self.control_bits, [_sub_module, _reg_index])
+
+                _core_module = _sub_module
+
+                if _sub_module.controlled is True:
+                    for _sub_control_bit in _sub_module.control_bits:
+                        self.control_bits.append(_reg_index[_sub_control_bit])
+                    for _sub_control_bit in sorted(_sub_module.control_bits,
+                            reverse=True):
+                        del _reg_index[_sub_control_bit]
+                    _core_module = _sub_module.sub_modules[0]
+                _temp_n = len(self.control_bits) + len(_reg_index)
+
+                _temp_port_index = list(self.control_bits)
+                _temp_port_index.extend(_reg_index)
+
+                _temp_mcu = TypicalModule.MCU(self.name, _temp_n,
+                        list(range(len(self.control_bits))),
+                        [_core_module, list(range(len(self.control_bits),
+                            _temp_n))])
                 _temp_mcu.set_typical(True)
                 _sub_mcus.append(_temp_mcu)
 
-            return _sub_mcus, [list(range(self.n))]*len(_sub_mcus)
+                _port_indices.append(_temp_port_index)
+
+            return _sub_mcus, _port_indices
+
+        def show(self):
+            super().show()
+            print(f'control_bits  :{self.control_bits}')
 
     class RX(U):
         def __init__(self, name, theta):
