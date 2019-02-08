@@ -99,7 +99,6 @@ class TypicalModule:
                     for i in _decomp_reg_index:
                         _temp_index.append(_reg_index[i])
                     
-                    _temp_sub_mcu_name = _decomp_sub_module.name
                     _temp_sub_mcu_n = _decomp_sub_module.n + len(self.control_bits)
                     _temp_reg_index = list()
 
@@ -113,10 +112,14 @@ class TypicalModule:
                         _temp_sub_mcu_control_bits = list(range(len(self.control_bits)+len(_decomp_sub_module.control_bits)))
                         _temp_reg_index = list(range(len(_temp_sub_mcu_control_bits), _temp_sub_mcu_n))
                         _temp_sub_mcu_applied_module = [_decomp_sub_module.sub_modules[0], _temp_reg_index]
-
+                    
+                    _temp_sub_mcu_name = 'C'*len(_temp_sub_mcu_control_bits)+_temp_sub_mcu_applied_module[0].name
+                    
                     _temp_sub_mcu = TypicalModule.MCU(_temp_sub_mcu_name, _temp_sub_mcu_n,
                             _temp_sub_mcu_control_bits, _temp_sub_mcu_applied_module)
                     _temp_sub_mcu.set_typical(True)
+                    
+
 
                     _res_sub_modules.append(_temp_sub_mcu)
                     _res_reg_indices.append(_temp_index)
@@ -170,8 +173,6 @@ class TypicalModule:
 
     def __init__(self):
         pass
-
-
 
 class RegisterMatchError(Exception):
     pass
