@@ -9,10 +9,16 @@
 using field = std::complex<double>;
 using namespace std::complex_literals;
 
-typedef struct _Gate {
+class Gate {
+public:
+	bool isControlled;
 	std::string name;
+	std::vector<int> controls;
 	std::vector<int> targets;
-} Gate;
+
+	Gate();
+	void print();
+};
 
 void applyGate(Gate gate, field *state, int n);
 void applySingleGate(std::string gate, int target, field *state, int n);

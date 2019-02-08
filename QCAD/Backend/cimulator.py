@@ -23,17 +23,49 @@ class Cimulator(Backend):
         csim.resetQC()
 
         csim.setNumQubit(quantum_circuit.n)
+        
+        for _gate, _indices in zip(*quantum_circuit.module.typ_decompose()):
+            Cimulator.sendGateToBackend(csim, _gate, _indices)
+        #    _ Cimulator.sendGateToBackend(_gate, _indices)
+        #    _num_target = len(_indices)
+        #    _c_index_array = (c_int * len(_indices))(*_indices)
+        #    _gate_name = _gate.name
 
-        _gates = quantum_circuit.module.typ_decompose()
-        for (_gate, _indices) in zip(_gates[0], _gates[1]):
-            _num_target = len(_indices)
-            _c_index_array = (c_int * len(_indices))(*_indices)
-            _gate_name = _gate.name
+        #    csim.addGate(_gate_name, _c_index_array, _num_target)
 
-            csim.addGate(_gate_name, _c_index_array, _num_target)
+        # csim.printQCStatus()
 
-        csim.printQCStatus()
-
-        csim.run()
+        # csim.run()
 
         return []
+
+    @staticmethod
+    def sendGateToBackend(handle, module, indices):
+        if module.typical is not True:
+            print("Exception")
+
+        _targets = list()
+        _controls = list()
+
+        if module.controlled is True:
+            _name = module.sub_modules[0].name
+            for _index in module.reg_indices[0]:
+                _targets.append(indices[_index])
+            for _index in module.control_bits:
+                _controls.append(indices[_index])
+
+            _c_targets = (c_int * len(_targets))(*_targets)
+            _c_controls = (c_int * len(_controls))(*_controls)
+
+            handle.addGate(_name, True, len(_targets),
+                    _c_targets, len(_controls), _c_controls)
+
+        else:
+            _name = module.name
+            for _index in indices:
+                _targets.append(_index)
+
+            _c_targets = (c_int * len(_targets))(*_targets)
+
+            handle.addGate(_name, False, len(_targets),
+                    _c_targets, 0, None)

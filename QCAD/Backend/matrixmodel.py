@@ -22,6 +22,8 @@ class MatrixModel(Backend):
          [0., 1.]]
     T = [[1., 0.],
          [0., np.exp(math.pi / 4 * 1.0j)]]
+    S = [[1., 0.],
+         [0., 1.0j]]
     CX = [[1., 0., 0., 0.],
           [0., 1., 0., 0.],
           [0., 0., 0., 1.],
@@ -32,7 +34,7 @@ class MatrixModel(Backend):
           [0., 0., 0., -1.]]
 
     #TypicalMatrix dictionary는 알려진 모듈의 이름과 행렬을 관계지음.
-    PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'CX':CX, 'CZ':CZ}
+    PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'S':S, 'CX':CX, 'CZ':CZ}
 
     def __init__(self):
         pass
@@ -41,7 +43,6 @@ class MatrixModel(Backend):
     def get_modulematrix(module):
         # 모듈을 받아서 행렬로 바꿔주는 함수
         # TODO: 최적화 가능한 알고리즘이므로 추가적인 개발 필요.
-
         if module.name in MatrixModel.PreDefinedModeules:
             return MatrixModel.PreDefinedModeules[module.name]
 
@@ -54,7 +55,8 @@ class MatrixModel(Backend):
         else:
             _module_matrix = np.eye(2 ** module.n, dtype='complex')
 
-            for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
+            #for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
+            for _sub_module, _index in zip(*module.typ_decompose()):
 
                 # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
                 _permutation_matrix = np.eye(2 ** module.n)
@@ -87,7 +89,7 @@ class MatrixModel(Backend):
 
         if not module.control_bits:
             _module.controlled = False
-            return MatrixModel.get_modulematrix(_module)
+            return MatrixModel.get_modulematrix(_module.sub_modules[0])
 
         _permutation_matrix = np.eye(2 ** _module.n)
 
