@@ -20,13 +20,21 @@ extern "C" void resetQC() {
 	delete state;
 }
 
-extern "C" void addGate(char* name, int targets[], int num_target) {
+extern "C" void addGate(char* name, bool is_controlled,
+		int num_target, int targets[], int num_controlled, int controls[]) {
 	Gate g;
 
 	g.name = name;
+	g.isControlled = is_controlled;
 	for (int i = 0; i < num_target; i++)
 		g.targets.push_back(targets[i]);
-	
+	if (is_controlled) {
+		for (int i = 0; i < num_controlled; i++)
+			g.controls.push_back(controls[i]);
+	}
+
+	g.print();
+
 	gates.push_back(g);
 }
 

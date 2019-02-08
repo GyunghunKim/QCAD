@@ -1,5 +1,7 @@
 #include "gate.h"
 
+#include <iostream>
+
 field H[2][2] = {{sqrt(0.5), sqrt(0.5)}, {sqrt(0.5), -sqrt(0.5)}}; 
 field X[2][2] = {{0, 1}, {1, 0}}; 
 field Y[2][2] = {{0, 1i}, {-1i, 0}};
@@ -24,6 +26,23 @@ field (*gateParser(std::string gate_name))[2] {
 	if (gate_name.compare("S") == 0)
 		return S;
 	return NULL;
+}
+
+Gate::Gate() {
+}
+
+void Gate::print() {
+	std::cout << "----------------------" << std::endl
+		<< "Name		: " << name << std::endl
+		<< "IsControlled	: " << isControlled << std::endl;
+
+	std::cout << "Controls	: ";
+	for (int i = 0; i < controls.size(); i++)
+		std::cout << controls[i] << " ";
+	std::cout << std::endl << "Targets		: ";
+	for (int i = 0; i < targets.size(); i++)
+		std::cout << targets[i] << " ";
+	std::cout << std::endl << "----------------------" << std::endl;
 }
 
 void applyGate(Gate gate, field *state, int n) {
