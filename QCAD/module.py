@@ -17,9 +17,9 @@ class Module(object):
         for _ind_module in ind_modules:
             self.sub_modules.append(_ind_module[0])
             self.reg_indices.append(_ind_module[1])
-            for _ind_module1 in range(len(_ind_module[1])):
-                if not _ind_module[1][_ind_module1] < self.n:
-                    raise IndexError
+#            for _ind_module1 in range(len(_ind_module[1])):
+#                if not _ind_module[1][_ind_module1] < self.n:
+#                    raise IndexError
 
     def show(self):
         print(f'Name        :{self.name}')
@@ -49,26 +49,23 @@ class Module(object):
 
     def typ_decompose(self):
         # 모듈을 기본적인 모듈(게이트)로 분해해주는 함수
-        temp_sub_modules = self.sub_modules.copy()
-        temp_reg_indices = self.reg_indices.copy()
+        if self.typical is True:
+            return [self], [list(range(self.n))]
 
-        for i in range(len(self.reg_indices)):
-            if temp_sub_modules[i].typical is False:
-                temp_decom = temp_sub_modules[i].typ_decompose()
+        _res_sub_modules = list()
+        _res_reg_indices = list()
 
-                del temp_sub_modules[i]
-                for j in range(len(temp_decom[0])):
-                    temp_sub_modules.insert(i+j, temp_decom[0][j])
+        for _sub_module, _reg_index in zip(self.sub_modules, self.reg_indices):
+            _decomp_sub_modules, _decomp_reg_indices = _sub_module.typ_decompose()
 
-                del temp_reg_indices[i]
-                for k in range(len(temp_decom[1])):
-                    temp_indices = [] 
-                    for l in temp_decom[1][k]:
-                        temp_indices.append(self.reg_indices[i][l])
-                    temp_reg_indices.insert(i+k, temp_indices)
+            for _decomp_sub_module, _decomp_reg_index in zip(_decomp_sub_modules, _decomp_reg_indices):
+                _res_sub_modules.append(_decomp_sub_module)
+                _temp_index = list()
+                for i in _decomp_reg_index:
+                    _temp_index.append(_reg_index[i])
+                _res_reg_indices.append(_temp_index)
 
-        return temp_sub_modules, temp_reg_indices
-
+        return _res_sub_modules, _res_reg_indices
 
 class TypicalModule:
     class U(Module):
@@ -87,42 +84,44 @@ class TypicalModule:
             self.control_bits = sorted(control_bits)
 
         def typ_decompose(self):
-            _temp_self = copy.deepcopy(self)
-            _sub_modules, _reg_indices = super().typ_decompose()
-                
-            _port_indices = list()
-            _sub_mcus = list()
-            for _sub_module, _reg_index in zip(_sub_modules, _reg_indices):
+            if self.typical is True:
+                return [self], [list(range(self.n))]
 
-                _core_module = _sub_module
+            _res_sub_modules = list()
+            _res_reg_indices = list()
 
-                if _sub_module.controlled is True:
-                    for _sub_control_bit in _sub_module.control_bits:
-                        _temp_self.control_bits.append(_reg_index[_sub_control_bit])
-                    for _sub_control_bit in sorted(_sub_module.control_bits,
-                            reverse=True):
-                        del _reg_index[_sub_control_bit]
-                    _core_module = _sub_module.sub_modules[0]
-                _temp_n = len(_temp_self.control_bits) + len(_reg_index)
+            for _sub_module, _reg_index in zip(self.sub_modules, self.reg_indices):
+                _decomp_sub_modules, _decomp_reg_indices = _sub_module.typ_decompose()
 
-                _temp_port_index = list(_temp_self.control_bits)
-                _temp_port_index.extend(_reg_index)
+                for _decomp_sub_module, _decomp_reg_index in zip(_decomp_sub_modules, _decomp_reg_indices):
+                    _temp_index = list()
+                    _temp_index.extend(self.control_bits)
+                    for i in _decomp_reg_index:
+                        _temp_index.append(_reg_index[i])
+                    
+                    _temp_sub_mcu_name = _decomp_sub_module.name
+                    _temp_sub_mcu_n = _decomp_sub_module.n + len(self.control_bits)
+                    _temp_reg_index = list()
 
-                _temp_mcu = TypicalModule.MCU(_temp_self.name, _temp_n,
-                        list(range(len(_temp_self.control_bits))),
-                        [_core_module, list(range(len(_temp_self.control_bits),
-                            _temp_n))])
+                    if _decomp_sub_module.controlled is False:
+                        _temp_sub_mcu_control_bits = list(range(len(self.control_bits)))
+                        for i in _decomp_reg_index:
+                            _temp_reg_index = list(range(len(self.control_bits), _temp_sub_mcu_n))
+                        _temp_sub_mcu_applied_module = [_decomp_sub_module, _temp_reg_index]
 
-                if _temp_mcu.sub_modules[0].typical is False:
-                    _temp_sub_mcus, _temp_port_indices = _temp_mcu.typ_decompose()
-                    _sub_mcus.extend(_temp_sub_mcus)
-                    _port_indices.extend(_temp_port_indices)
-                else:
-                    _temp_mcu.set_typical(True)
-                    _sub_mcus.append(_temp_mcu)
-                    _port_indices.append(_temp_port_index)
+                    else:
+                        _temp_sub_mcu_control_bits = list(range(len(self.control_bits)+len(_decomp_sub_module.control_bits)))
+                        _temp_reg_index = list(range(len(_temp_sub_mcu_control_bits), _temp_sub_mcu_n))
+                        _temp_sub_mcu_applied_module = [_decomp_sub_module.sub_modules[0], _temp_reg_index]
 
-            return _sub_mcus, _port_indices
+                    _temp_sub_mcu = TypicalModule.MCU(_temp_sub_mcu_name, _temp_sub_mcu_n,
+                            _temp_sub_mcu_control_bits, _temp_sub_mcu_applied_module)
+                    _temp_sub_mcu.set_typical(True)
+
+                    _res_sub_modules.append(_temp_sub_mcu)
+                    _res_reg_indices.append(_temp_index)
+
+            return _res_sub_modules, _res_reg_indices
 
         def show(self):
             super().show()
