@@ -65,7 +65,7 @@ class Module(object):
                     temp_indices = [] 
                     for l in temp_decom[1][k]:
                         temp_indices.append(self.reg_indices[i][l])
-                    temp_reg_indices.insert(i + k, temp_indices)
+                    temp_reg_indices.insert(i+k, temp_indices)
 
         return temp_sub_modules, temp_reg_indices
 
@@ -89,7 +89,7 @@ class TypicalModule:
         def typ_decompose(self):
             _temp_self = copy.deepcopy(self)
             _sub_modules, _reg_indices = super().typ_decompose()
-
+                
             _port_indices = list()
             _sub_mcus = list()
             for _sub_module, _reg_index in zip(_sub_modules, _reg_indices):
@@ -112,10 +112,15 @@ class TypicalModule:
                         list(range(len(_temp_self.control_bits))),
                         [_core_module, list(range(len(_temp_self.control_bits),
                             _temp_n))])
-                _temp_mcu.set_typical(True)
-                _sub_mcus.append(_temp_mcu)
 
-                _port_indices.append(_temp_port_index)
+                if _temp_mcu.sub_modules[0].typical is False:
+                    _temp_sub_mcus, _temp_port_indices = _temp_mcu.typ_decompose()
+                    _sub_mcus.extend(_temp_sub_mcus)
+                    _port_indices.extend(_temp_port_indices)
+                else:
+                    _temp_mcu.set_typical(True)
+                    _sub_mcus.append(_temp_mcu)
+                    _port_indices.append(_temp_port_index)
 
             return _sub_mcus, _port_indices
 
