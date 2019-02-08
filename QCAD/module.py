@@ -118,8 +118,6 @@ class TypicalModule:
                     _temp_sub_mcu = TypicalModule.MCU(_temp_sub_mcu_name, _temp_sub_mcu_n,
                             _temp_sub_mcu_control_bits, _temp_sub_mcu_applied_module)
                     _temp_sub_mcu.set_typical(True)
-                    
-
 
                     _res_sub_modules.append(_temp_sub_mcu)
                     _res_reg_indices.append(_temp_index)

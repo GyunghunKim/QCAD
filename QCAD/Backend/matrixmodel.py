@@ -108,9 +108,10 @@ class MatrixModel(Backend):
         _module.reg_indices[0][:] = [x - 1 for x in _module.reg_indices[0]]
 
         _dim = 2 ** _module.n
+
         return np.linalg.inv(_permutation_matrix) \
                @ np.block([[np.eye(_dim), np.zeros((_dim, _dim))],
-                           [np.zeros((_dim, _dim)), MatrixModel.get_controlled_modulematrix(_module)]]) \
+                           [np.zeros((_dim, _dim)), np.matrix(MatrixModel.get_controlled_modulematrix(_module))]]) \
                @ _permutation_matrix
 
 
@@ -155,6 +156,6 @@ class MatrixModel(Backend):
             for _state in initial_state:
                 _state_vector = np.kron(_state, _state_vector)
 
-        _result = np.matmul(MatrixModel.get_modulematrix(quantum_circuit.module), np.asarray(_state_vector).T)
+        _result = np.matmul(np.matrix(MatrixModel.get_modulematrix(quantum_circuit.module)), np.matrix(_state_vector).T)
 
-        return _result.T.tolist()
+        return _result.T.tolist()[0]
