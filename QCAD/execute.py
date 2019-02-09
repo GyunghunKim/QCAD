@@ -13,12 +13,6 @@ def execute(backend, quantum_circuit: QuantumCircuit, initial_state = [], option
     if backend == "MatrixModel":
         _res = Backend.MatrixModel.run(quantum_circuit, initial_state)
 
-    if backend == "OptimizedGate":
-        _res = Backend.OptimizedGate.run(quantum_circuit, initial_state)
-
-    if backend == "OptimizedGate_Extended":
-        _res = Backend.OptimizedGateExtended.run(quantum_circuit, initial_state)
-
     if backend == "Cimulator":
         _res = Backend.Cimulator.run(quantum_circuit, initial_state)
 

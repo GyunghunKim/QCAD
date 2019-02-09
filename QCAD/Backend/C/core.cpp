@@ -9,18 +9,27 @@ int num_qubit;
 std::vector<Gate> gates;
 field *state;
 
-extern "C" void setNumQubit(int n) {
+extern "C" {
+	void setNumQubit(int n);
+	void resetQC();
+	void addGate(char* name, bool is_controlled,
+			int num_target, int targets[], int num_controlled, int controls[]);
+	void printQCStatus();
+	void run();
+}
+
+void setNumQubit(int n) {
 	num_qubit = n;
 	state = new field[(int)std::exp2(num_qubit)]();
 } 
 
-extern "C" void resetQC() {
+void resetQC() {
 	num_qubit = 0;
 	gates.clear();
 	delete state;
 }
 
-extern "C" void addGate(char* name, bool is_controlled,
+void addGate(char* name, bool is_controlled,
 		int num_target, int targets[], int num_controlled, int controls[]) {
 	Gate g;
 
@@ -38,7 +47,7 @@ extern "C" void addGate(char* name, bool is_controlled,
 	gates.push_back(g);
 }
 
-extern "C" void printQCStatus() {
+void printQCStatus() {
 	std::cout << "Number of Qubits: " << num_qubit << std::endl;
 	for (int i = 0; i < gates.size(); i++) {
 		std::cout << "Gate: " << gates[i].name << ", Targets: ";
@@ -50,7 +59,7 @@ extern "C" void printQCStatus() {
 
 //TODO: 12/30 Multi qubit gate (CX)에 대해 작동하도록 수정되어야 함.
 //TODO: 12/30 출력 방식 정하고 완성해야 함.
-extern "C" void run() {
+void run() {
 	//TODO: Delete this!
 	state[0] = 1;
 

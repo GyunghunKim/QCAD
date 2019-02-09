@@ -48,7 +48,7 @@ class Cimulator(Backend):
         _controls = list()
 
         if module.controlled is True:
-            _name = module.sub_modules[0].name
+            _c_name = c_char_p(module.name.encode('ascii'))
             for _index in module.reg_indices[0]:
                 _targets.append(indices[_index])
             for _index in module.control_bits:
@@ -57,15 +57,15 @@ class Cimulator(Backend):
             _c_targets = (c_int * len(_targets))(*_targets)
             _c_controls = (c_int * len(_controls))(*_controls)
 
-            handle.addGate(_name, True, len(_targets),
+            handle.addGate(_c_name, True, len(_targets),
                     _c_targets, len(_controls), _c_controls)
 
         else:
-            _name = module.name
+            _c_name = c_char_p(module.name.encode('ascii'))
             for _index in indices:
                 _targets.append(_index)
 
             _c_targets = (c_int * len(_targets))(*_targets)
 
-            handle.addGate(_name, False, len(_targets),
+            handle.addGate(_c_name, False, len(_targets),
                     _c_targets, 0, None)
