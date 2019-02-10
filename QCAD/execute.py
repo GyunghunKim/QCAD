@@ -33,11 +33,11 @@ def execute(backend, quantum_circuit: QuantumCircuit, initial_state = [], option
     if option == 'nonzero':
         prob = [(x*np.conjugate(x)).real for x in _res]
         print('='*50)
-        print("State\t\t: Prob")
+        print("# : State")
         form_str = '{0:0' + str(quantum_circuit.n) + 'b}'
         for i in range(len(prob)):
             if math.isclose(prob[i], 0, abs_tol=abs_tol) is False:
-                print(form_str.format(i) + f"\t\t: {_res[i]}")
+                print(form_str.format(i) + f" : {_res[i]}")
         print('='*50)
 
     if option == 'barplot':
