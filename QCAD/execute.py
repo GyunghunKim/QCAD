@@ -37,12 +37,10 @@ def execute(backend, quantum_circuit: QuantumCircuit, initial_state = [], option
         form_str = '{0:0' + str(quantum_circuit.n) + 'b}'
         for i in range(len(prob)):
             if math.isclose(prob[i], 0, abs_tol=abs_tol) is False:
-                print(form_str.format(i) + f"\t\t: {prob[i]}")
+                print(form_str.format(i) + f"\t\t: {_res[i]}")
         print('='*50)
 
     if option == 'barplot':
-        print(_res)
-
         plt.bar(np.arange(2 ** quantum_circuit.n), [(x*np.conjugate(x)).real for x in _res])
         plt.ylabel('Probability')
         plt.xticks(np.arange(0, 2 ** quantum_circuit.n))
