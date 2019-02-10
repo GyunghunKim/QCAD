@@ -5,9 +5,10 @@ import math
 import os
 
 from ctypes import *
-from numpy.ctypeslib import ndpointer
+# from numpy.ctypeslib import ndpointer
 
 from . import Backend
+from . import MatrixModel
 from .. import TypicalModule
 from .. import QuantumCircuit
 
@@ -16,27 +17,23 @@ class Cimulator(Backend):
         pass
 
     @staticmethod
-    def run(quantum_circuit: QuantumCircuit, initial_state=[]):
+    def run(quantum_circuit: QuantumCircuit, state_vector):
         
         csim = cdll.LoadLibrary('%s/csim.so' % os.path.dirname(os.path.realpath(__file__)))
 
         csim.resetQC()
 
         csim.setNumQubit(quantum_circuit.n)
-        
+
         for _gate, _indices in zip(*quantum_circuit.module.typ_decompose()):
-            Cimulator.sendGateToBackend(csim, _gate, _indices)
-        #    _ Cimulator.sendGateToBackend(_gate, _indices)
-        #    _num_target = len(_indices)
-        #    _c_index_array = (c_int * len(_indices))(*_indices)
-        #    _gate_name = _gate.name
+           Cimulator.sendGateToBackend(csim, _gate, _indices)
 
-        #    csim.addGate(_gate_name, _c_index_array, _num_target)
+        csim.printQCStatus()
 
-        # csim.printQCStatus()
-
-        # csim.run()
-
+#        _c_state_real, _c_state_imag = list(map(lambda x: (c_double * len(x))(*x),
+#            np.real(state_vector).tolist, np.imag(state_vector).tolist()))
+#        csim.run(_c_state_real, _c_state_imag)
+#
         return []
 
     @staticmethod
@@ -48,7 +45,7 @@ class Cimulator(Backend):
         _controls = list()
 
         if module.controlled is True:
-            _name = module.sub_modules[0].name
+            _c_name = c_char_p(module.name.encode('ascii'))
             for _index in module.reg_indices[0]:
                 _targets.append(indices[_index])
             for _index in module.control_bits:
@@ -56,16 +53,30 @@ class Cimulator(Backend):
 
             _c_targets = (c_int * len(_targets))(*_targets)
             _c_controls = (c_int * len(_controls))(*_controls)
+            _c_matrix_real, _c_matrix_imaginary = list(map(lambda x: (c_double * len(x))(*x),
+                Cimulator.getModuleMatrixIn1D(module.sub_modules[0], option='separated')))
 
-            handle.addGate(_name, True, len(_targets),
-                    _c_targets, len(_controls), _c_controls)
+            handle.addGate(_c_name, _c_matrix_real, _c_matrix_imaginary,
+                    True, len(_targets), _c_targets, len(_controls), _c_controls)
 
         else:
-            _name = module.name
+            _c_name = c_char_p(module.name.encode('ascii'))
             for _index in indices:
                 _targets.append(_index)
 
             _c_targets = (c_int * len(_targets))(*_targets)
+            _c_matrix_real, _c_matrix_imaginary = list(map(lambda x: (c_double * len(x))(*x),
+                Cimulator.getModuleMatrixIn1D(module, option='separated')))
 
-            handle.addGate(_name, False, len(_targets),
-                    _c_targets, 0, None)
+            handle.addGate(_c_name, _c_matrix_real, _c_matrix_imaginary,
+                    False, len(_targets), _c_targets, 0, None)
+
+    @staticmethod
+    def getModuleMatrixIn1D(module, option=''):
+        _matrix = MatrixModel.get_modulematrix(module)
+        _matrix_in_1d = np.reshape(_matrix, (1, -1))
+        
+        if option == '':
+            return _matrix_in_1d[0].tolist()
+        if option == 'separated':
+            return _matrix_in_1d[0].real.tolist(), _matrix_in_1d[0].imag.tolist()

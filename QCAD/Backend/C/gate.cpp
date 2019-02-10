@@ -2,33 +2,59 @@
 
 #include <iostream>
 
-field H[2][2] = {{sqrt(0.5), sqrt(0.5)}, {sqrt(0.5), -sqrt(0.5)}}; 
-field X[2][2] = {{0, 1}, {1, 0}}; 
-field Y[2][2] = {{0, 1i}, {-1i, 0}};
-field Z[2][2] = {{1, 0}, {0, -1}}; 
-field I[2][2] = {{1, 0}, {0, 1}};
-field T[2][2] = {{1, 0}, {0, sqrt(0.5)+sqrt(0.5)*1i}};
-field S[2][2] = {{1, 0}, {0, 1i}};
-
-field (*gateParser(std::string gate_name))[2] {
-	if (gate_name.compare("H") == 0)
-		return H;
-	if (gate_name.compare("X") == 0)
-		return X;
-	if (gate_name.compare("Y") == 0)
-		return Y;
-	if (gate_name.compare("Z") == 0)
-		return Z;
-	if (gate_name.compare("I") == 0)
-		return I;
-	if (gate_name.compare("T") == 0)
-		return T;
-	if (gate_name.compare("S") == 0)
-		return S;
-	return NULL;
+Gate::Gate() {
 }
 
-Gate::Gate() {
+Gate::Gate(const Gate &g) {
+	this->name = g.name;
+	this->n = g.n;
+	this->num_matrix = g.num_matrix;
+	this->num_controlled = g.num_controlled;
+	this->num_target = g.num_target;
+	this->isControlled = g.isControlled;
+	this->targets = g.targets;
+	this->controls = g.controls;
+
+	this->matrix = new field*[num_matrix];
+	for (int i = 0; i < num_matrix; i++) {
+		this->matrix[i] = new field[num_matrix];
+		for (int j = 0; j < num_matrix; j++) {
+			this->matrix[i][j] = g.matrix[i][j];
+		}
+	}
+}
+
+Gate::Gate(char* name, double matrix_real[], double matrix_imag[], bool is_controlled,
+		int num_target, int targets[], int num_controlled, int controls[]) {
+
+	this->name = name;
+	this->n = num_target + num_controlled;
+	this->num_matrix = 1 << num_target;
+	this->num_target = num_target;
+	this->num_controlled = num_controlled;
+	this->isControlled = is_controlled;
+
+	for (int i = 0; i < num_target; i++)
+		this->targets.push_back(targets[i]);
+	
+	if (is_controlled) {
+		for (int i = 0; i < num_controlled; i++)
+			this->controls.push_back(controls[i]);
+	}
+
+	this->matrix = new field*[num_matrix];
+	for (int i = 0; i < num_matrix; i++) {
+		this->matrix[i] = new field[num_matrix];
+		for (int j = 0; j < num_matrix; j++)
+			this->matrix[i][j] = field(matrix_real[i * num_matrix + j],
+					matrix_imag[i * num_matrix + j]);
+	}
+}
+
+Gate::~Gate() {
+	for (int i = 0; i < num_matrix; i++)
+		delete[] matrix[i];
+	delete[] matrix;	
 }
 
 void Gate::print() {
@@ -37,33 +63,40 @@ void Gate::print() {
 		<< "IsControlled	: " << isControlled << std::endl;
 
 	std::cout << "Controls	: ";
-	for (int i = 0; i < controls.size(); i++)
+	for (int i = 0; i < num_controlled; i++)
 		std::cout << controls[i] << " ";
 	std::cout << std::endl << "Targets		: ";
-	for (int i = 0; i < targets.size(); i++)
+	for (int i = 0; i < num_target; i++)
 		std::cout << targets[i] << " ";
-	std::cout << std::endl << "----------------------" << std::endl;
-}
-
-void applyGate(Gate gate, field *state, int n) {
-	if (gate.targets.size() == 1)
-		applySingleGate(gate.name, gate.targets[0], state, n);
-}
-
-void applySingleGate(std::string gate_name, int target, field *state, int n) {
-	int size1 = 1 << target;
-	int size2 = 1 << (n-target-1);
-
-	field (*gate)[2] = gateParser(gate_name);
-
-	for (int i = 0 ; i < size2; i++) {
-		for (int j = 0; j < size1; j++) {
-			int a = (i << (target+1)) + j;
-			int b = a + (1 << target);
-
-			field imsi = state[a];
-			state[a] = gate[0][0] * imsi + gate[0][1] * state[b];
-			state[b] = gate[1][0] * imsi + gate[1][1] * state[b];		
+	std::cout << std::endl << "Matrix" << std::endl;
+	for (int i = 0; i < num_matrix; i++) {
+		for (int j = 0; j < num_matrix; j++) {
+			std::cout << matrix[i][j] << " ";
 		}
-	}	
+		std::cout << std::endl;
+	} 
+	std::cout << "----------------------" << std::endl;
 }
+
+//void applyGate(Gate gate, field *state, int n) {
+//	if (gate.targets.size() == 1)
+//		applySingleGate(gate.name, gate.targets[0], state, n);
+//}
+//
+//void applySingleGate(std::string gate_name, int target, field *state, int n) {
+//	int size1 = 1 << target;
+//	int size2 = 1 << (n-target-1);
+//
+//	field (*gate)[2] = gateParser(gate_name);
+//
+//	for (int i = 0 ; i < size2; i++) {
+//		for (int j = 0; j < size1; j++) {
+//			int a = (i << (target+1)) + j;
+//			int b = a + (1 << target);
+//
+//			field imsi = state[a];
+//			state[a] = gate[0][0] * imsi + gate[0][1] * state[b];
+//			state[b] = gate[1][0] * imsi + gate[1][1] * state[b];		
+//		}
+//	}	
+//}

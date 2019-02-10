@@ -10,13 +10,25 @@ using field = std::complex<double>;
 using namespace std::complex_literals;
 
 class Gate {
-public:
-	bool isControlled;
+private:
 	std::string name;
+	
+	int n;
+	int num_matrix, num_target, num_controlled;
+	bool isControlled;
+	
 	std::vector<int> controls;
 	std::vector<int> targets;
 
+	field** matrix;
+
+public:
 	Gate();
+	Gate(const Gate &g);
+	Gate(char* name, double matrix_real[], double matrix_imag[], bool is_controlled,
+		int num_target, int targets[], int num_controlled, int controls[]);
+	~Gate();
+
 	void print();
 };
 

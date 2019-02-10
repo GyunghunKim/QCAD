@@ -144,17 +144,9 @@ class MatrixModel(Backend):
         return _temp_permutation_matrix
 
     @staticmethod
-    def run(quantum_circuit: QuantumCircuit, initial_state=[]):
+    def run(quantum_circuit: QuantumCircuit, state_vector):
         # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
-        _state_vector = [1]
-        if not initial_state:
-            _state_vector = [0.] * 2 ** quantum_circuit.n
-            _state_vector[0] = 1.
-        elif len(initial_state) is 2 ** quantum_circuit.n:
-            _state_vector = initial_state[:]
-        elif len(initial_state) is quantum_circuit.n:
-            for _state in initial_state:
-                _state_vector = np.kron(_state, _state_vector)
+        _state_vector = state_vector.copy()
 
         _result = np.matmul(np.matrix(MatrixModel.get_modulematrix(quantum_circuit.module)), np.matrix(_state_vector).T)
 
