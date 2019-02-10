@@ -73,7 +73,7 @@ void subGetMask(int n, int* mask, int ind, field* state, Gate g) {
 
 void applyGate(int n, field* state, Gate g) {
 	//단일 게이트의 경우 빨리 처리된다.
-	if (g.isControlled() == false && g.getNumTarget() == 1) {
+/*	if (g.isControlled() == false && g.getNumTarget() == 1) {
 		int target = g.getTargets()[0];
 		
 		int size1 = 1 << target;
@@ -92,7 +92,7 @@ void applyGate(int n, field* state, Gate g) {
 			}
 		}
 	}
-	
+*/	
 	//mask는 비트를 나타낸다.
 	//값이 -1이면 행렬 연산을 가해야 한다. 탐색을 통해 만들어낸다.	
 	int* mask = new int[n]();
