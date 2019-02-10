@@ -77,21 +77,3 @@ void Gate::print() {
 	} 
 	std::cout << "----------------------" << std::endl;
 }
-
-//void applySingleGate(std::string gate_name, int target, field *state, int n) {
-//	int size1 = 1 << target;
-//	int size2 = 1 << (n-target-1);
-//
-//	field (*gate)[2] = gateParser(gate_name);
-//
-//	for (int i = 0 ; i < size2; i++) {
-//		for (int j = 0; j < size1; j++) {
-//			int a = (i << (target+1)) + j;
-//			int b = a + (1 << target);
-//
-//			field imsi = state[a];
-//			state[a] = gate[0][0] * imsi + gate[0][1] * state[b];
-//			state[b] = gate[1][0] * imsi + gate[1][1] * state[b];		
-//		}
-//	}	
-//}
