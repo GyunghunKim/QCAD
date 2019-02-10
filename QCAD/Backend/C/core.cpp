@@ -12,57 +12,49 @@ field *state;
 extern "C" {
 	void setNumQubit(int n);
 	void resetQC();
-	void addGate(char* name, bool is_controlled,
-			int num_target, int targets[], int num_controlled, int controls[]);
+	void addGate(char* name, double matrix_real[], double matrix_imag[], bool is_controlled,
+		int num_target, int targets[], int num_controlled, int controls[]);
 	void printQCStatus();
-	void run();
+	void run(double state_real[], double state_imag[]);
 }
 
 void setNumQubit(int n) {
 	num_qubit = n;
-	state = new field[(int)std::exp2(num_qubit)]();
+	state = new field[1<<num_qubit]();
 } 
 
 void resetQC() {
 	num_qubit = 0;
 	gates.clear();
-	delete state;
+	delete []state;
 }
 
-void addGate(char* name, bool is_controlled,
+void addGate(char* name, double matrix_real[], double matrix_imag[], bool is_controlled,
 		int num_target, int targets[], int num_controlled, int controls[]) {
-	Gate g;
 
-	g.name = name;
-	g.isControlled = is_controlled;
-	for (int i = 0; i < num_target; i++)
-		g.targets.push_back(targets[i]);
-	if (is_controlled) {
-		for (int i = 0; i < num_controlled; i++)
-			g.controls.push_back(controls[i]);
-	}
-
-	g.print();
+	Gate g(name, matrix_real, matrix_imag, is_controlled, num_target,
+			targets, num_controlled, controls);
 
 	gates.push_back(g);
 }
 
 void printQCStatus() {
 	std::cout << "Number of Qubits: " << num_qubit << std::endl;
-	for (int i = 0; i < gates.size(); i++) {
-		std::cout << "Gate: " << gates[i].name << ", Targets: ";
-		for (int j = 0; j < gates[i].targets.size(); j++)
-			std::cout << gates[i].targets[j] << " ";
-		std::cout << std::endl;	
+	for (auto gate: gates) {
+		gate.print();
 	}
 }
 
-//TODO: 12/30 Multi qubit gate (CX)에 대해 작동하도록 수정되어야 함.
-//TODO: 12/30 출력 방식 정하고 완성해야 함.
-void run() {
+void run(double state_real[], double state_imag[]) {
 	//TODO: Delete this!
-	state[0] = 1;
+	for (int i = 0; i < 1<<num_qubit; i++)
+		state[i] = field(state_real[i], state_imag[i]);
 
+	for (int i = 0; i < 1<<num_qubit; i++)
+		std::cout << state[i] << " ";
+	std::cout << std::endl;
+
+/*
 	double *prob = new double[(int)std::exp2(num_qubit)]();
 	
 	std::clock_t begin = std::clock();
@@ -82,4 +74,5 @@ void run() {
 		}
 
 	std::cout << "Elapsed Time: " << (double)(end - begin)/CLOCKS_PER_SEC << std::endl << std::endl;
+*/
 }
