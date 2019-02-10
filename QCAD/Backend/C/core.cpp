@@ -1,5 +1,5 @@
 #include "gate.h"
-#include "utill.h"
+#include "calc.h"
 
 #include <vector>
 #include <iostream>
@@ -15,7 +15,7 @@ extern "C" {
 	void addGate(char* name, double matrix_real[], double matrix_imag[], bool is_controlled,
 		int num_target, int targets[], int num_controlled, int controls[]);
 	void printQCStatus();
-	void run(double state_real[], double state_imag[]);
+	double* run(double state_real[], double state_imag[]);
 }
 
 void setNumQubit(int n) {
@@ -45,34 +45,25 @@ void printQCStatus() {
 	}
 }
 
-void run(double state_real[], double state_imag[]) {
-	//TODO: Delete this!
+double* run(double state_real[], double state_imag[]) {
 	for (int i = 0; i < 1<<num_qubit; i++)
 		state[i] = field(state_real[i], state_imag[i]);
-
-	for (int i = 0; i < 1<<num_qubit; i++)
-		std::cout << state[i] << " ";
-	std::cout << std::endl;
-
-/*
-	double *prob = new double[(int)std::exp2(num_qubit)]();
 	
 	std::clock_t begin = std::clock();
-	for (int i = 0; i < gates.size(); i++) {
-		if (gates[i].targets.size() == 1)
-			applySingleGate(gates[i].name, gates[i].targets[0], state, num_qubit);
-	}
+	
+	for (auto &gate: gates)
+		applyGate(num_qubit, state, gate);
 
-	for (int i = 0; i < std::exp2(num_qubit); i++)
-		prob[i] = std::abs(state[i]);
 	std::clock_t end = std::clock();
 
-	for (int i = 0; i < std::exp2(num_qubit); i++)
-		if (prob[i] != 0) {
-			printBit(i, num_qubit, true);
-			std::cout << ": " << prob[i]*prob[i] << std::endl;
-		}
-
 	std::cout << "Elapsed Time: " << (double)(end - begin)/CLOCKS_PER_SEC << std::endl << std::endl;
-*/
+
+	double* res = new double[(1<<num_qubit) * 2];
+
+	for (int i = 0; i < 1<<num_qubit; i++) {
+		res[i] = state[i].real();
+		res[(1<<num_qubit) + i] = state[i].imag();
+	}
+
+	return res; 
 }

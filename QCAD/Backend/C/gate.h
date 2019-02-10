@@ -15,7 +15,7 @@ private:
 	
 	int n;
 	int num_matrix, num_target, num_controlled;
-	bool isControlled;
+	bool is_controlled;
 	
 	std::vector<int> controls;
 	std::vector<int> targets;
@@ -30,7 +30,27 @@ public:
 	~Gate();
 
 	void print();
-};
 
-void applyGate(Gate gate, field *state, int n);
-void applySingleGate(std::string gate, int target, field *state, int n);
+	//Getters and Setters
+	bool isControlled() {
+		return is_controlled;
+	}
+	int getNumMatrix() {
+		return num_matrix;
+	}
+	int getNumTarget() {
+		return num_target;
+	}
+	int getNumControlled() {
+		return num_controlled;
+	}
+	std::vector<int> getControls() {
+		return controls;
+	}
+	std::vector<int> getTargets() {
+		return targets;
+	}
+	field** getMatrix() {
+		return matrix;
+	}
+};

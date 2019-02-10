@@ -30,11 +30,17 @@ class Cimulator(Backend):
 
         csim.printQCStatus()
 
-#        _c_state_real, _c_state_imag = list(map(lambda x: (c_double * len(x))(*x),
-#            np.real(state_vector).tolist, np.imag(state_vector).tolist()))
-#        csim.run(_c_state_real, _c_state_imag)
-#
-        return []
+        _c_state_real, _c_state_imag = [(c_double * len(x))(*x) for x in
+            [np.real(state_vector).tolist(), np.imag(state_vector).tolist()]]
+
+        csim.run.restype = POINTER(c_double * (2 * (2**quantum_circuit.n)))
+        _c_res_state = csim.run(_c_state_real, _c_state_imag).contents
+
+        _res_state = [0] * (2**quantum_circuit.n)
+        for i in range(2**quantum_circuit.n):
+            _res_state[i] = complex(_c_res_state[i], _c_res_state[i+2**quantum_circuit.n])
+
+        return _res_state
 
     @staticmethod
     def sendGateToBackend(handle, module, indices):
@@ -53,8 +59,8 @@ class Cimulator(Backend):
 
             _c_targets = (c_int * len(_targets))(*_targets)
             _c_controls = (c_int * len(_controls))(*_controls)
-            _c_matrix_real, _c_matrix_imaginary = list(map(lambda x: (c_double * len(x))(*x),
-                Cimulator.getModuleMatrixIn1D(module.sub_modules[0], option='separated')))
+            _c_matrix_real, _c_matrix_imaginary = [(c_double * len(x))(*x) for x in
+                Cimulator.getModuleMatrixIn1D(module.sub_modules[0], option='separated')]
 
             handle.addGate(_c_name, _c_matrix_real, _c_matrix_imaginary,
                     True, len(_targets), _c_targets, len(_controls), _c_controls)
@@ -65,8 +71,8 @@ class Cimulator(Backend):
                 _targets.append(_index)
 
             _c_targets = (c_int * len(_targets))(*_targets)
-            _c_matrix_real, _c_matrix_imaginary = list(map(lambda x: (c_double * len(x))(*x),
-                Cimulator.getModuleMatrixIn1D(module, option='separated')))
+            _c_matrix_real, _c_matrix_imaginary = [(c_double * len(x))(*x) for x in
+                Cimulator.getModuleMatrixIn1D(module, option='separated')]
 
             handle.addGate(_c_name, _c_matrix_real, _c_matrix_imaginary,
                     False, len(_targets), _c_targets, 0, None)
