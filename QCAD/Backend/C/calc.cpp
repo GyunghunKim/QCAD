@@ -60,8 +60,10 @@ void subGetMask(int n, int* mask, int ind, field* state, Gate g) {
 
 	while(mask[ind] == -1 || mask[ind] == 1) {
 		ind++;
-		if (ind >= n)
+		if (ind >= n) {
 			subGetMask(n, mask, ind, state, g);
+			return;
+		}
 	}
 	if (ind < n) {
 		subGetMask(n, mask, ind+1, state, g);
@@ -72,7 +74,7 @@ void subGetMask(int n, int* mask, int ind, field* state, Gate g) {
 }
 
 void applyGate(int n, field* state, Gate g) {
-	//단일 게이트의 경우 빨리 처리된다.
+	//단일 게이트의 경우 빨리 처리된다. (알고리즘 틀림)
 /*	if (g.isControlled() == false && g.getNumTarget() == 1) {
 		int target = g.getTargets()[0];
 		

@@ -79,7 +79,7 @@ class Cimulator(Backend):
 
     @staticmethod
     def getModuleMatrixIn1D(module, option=''):
-        _matrix = MatrixModel.get_modulematrix(module)
+        _matrix = MatrixModel.get_typ_module_matrix(module)
         _matrix_in_1d = np.reshape(_matrix, (1, -1))
         
         if option == '':

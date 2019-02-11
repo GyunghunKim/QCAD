@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 def execute(backend, quantum_circuit: QuantumCircuit, initial_state = [], option='', abs_tol=1e-08):
     # TODO: 무엇을 리턴할 지 생각해 보아야 함.
     
-    _state_vector = [1]
+    _state_vector = [1.+0.j]
     if not initial_state:
-        _state_vector = [0.] * 2 ** quantum_circuit.n
-        _state_vector[0] = 1.
+        _state_vector = [0.+0.j] * 2 ** quantum_circuit.n
+        _state_vector[0] = 1.+0.j
     elif len(initial_state) is 2 ** quantum_circuit.n:
         _state_vector = initial_state[:]
     elif len(initial_state) is quantum_circuit.n:

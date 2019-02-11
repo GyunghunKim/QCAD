@@ -40,114 +40,90 @@ class MatrixModel(Backend):
         pass
 
     @staticmethod
-    def get_modulematrix(module):
-        # 모듈을 받아서 행렬로 바꿔주는 함수
-        # TODO: 최적화 가능한 알고리즘이므로 추가적인 개발 필요.
-        if module.name in MatrixModel.PreDefinedModeules:
-            return MatrixModel.PreDefinedModeules[module.name]
+    def bit_to_int(mask):
+        res = 0
+        
+        for i in range(len(mask)):
+            res += mask[i] * (2 ** i)
 
-        elif module.matrix_only_defined is True:
+        return res
+
+    @staticmethod
+    def sub_get_points(points, mask, module, reg_index, ind):
+        if ind == len(reg_index):
+            points.append(MatrixModel.bit_to_int(mask))
+            return
+        mask[reg_index[-ind-1]] = 0
+        MatrixModel.sub_get_points(points, mask, module, reg_index, ind+1)
+        mask[reg_index[-ind-1]] = 1
+        MatrixModel.sub_get_points(points, mask, module, reg_index, ind+1)
+        mask[reg_index[-ind-1]] = -1
+
+    @staticmethod
+    def sub_gate_matrix_multiplicate(points, state, module):
+        temp = list()
+        for i in range(len(points)):
+            temp.append(state[points[i]])
+        temp = np.reshape(temp, (-1, 1))
+        temp = MatrixModel.get_typ_module_matrix(module) @ temp
+   
+        for i in range(len(points)):
+            state[points[i]] = temp[i][0]
+
+    @staticmethod
+    def get_typ_module_matrix(module):
+        if module.matrix_only_defined:
             return module.matrix
-
-        elif module.controlled is True:
-            return MatrixModel.get_controlled_modulematrix(module)
-
-        else:
-            _module_matrix = np.eye(2 ** module.n, dtype='complex')
-
-            #for _sub_module, _index in zip(module.sub_modules, module.reg_indices):
-            for _sub_module, _index in zip(*module.typ_decompose()):
-
-                # _index에 들어있는 값들에 해당하는 permutation matrix를 구한다.
-                _permutation_matrix = np.eye(2 ** module.n)
-
-                _temp_array = list(range(module.n))
-
-                for _i in range(len(_index)):
-                    if _temp_array[_i] is not _index[_i]:
-                        _a, _b = _i, _temp_array.index(_index[_i])
-                        _temp_array[_b], _temp_array[_a] = _temp_array[_a], _temp_array[_b]
-                        _permutation_matrix = MatrixModel.get_permutationmatrix(module.n, _a,
-                                                                                _b) @ _permutation_matrix
-
-                _temp_module_matrix = MatrixModel.get_modulematrix(_sub_module)
-
-                for _i in range(module.n - len(_index)):
-                    _temp_module_matrix = np.kron(MatrixModel.PreDefinedModeules['I'], _temp_module_matrix)
-
-                # 모듈의 matrix를 구한다.
-                _sub_module_matrix = np.linalg.inv(_permutation_matrix) @ _temp_module_matrix @ _permutation_matrix
-
-                _module_matrix = _sub_module_matrix @ _module_matrix
-
-            return _module_matrix
+        if module.controlled is True:
+            return MatrixModel.get_typ_module_matrix(module.sub_modules[0])
+        return MatrixModel.PreDefinedModeules[module.name]
 
     @staticmethod
-    def get_controlled_modulematrix(module: TypicalModule.MCU):
-        # 재귀적 처리를 통해 MCU의 행렬 표현을 구한다.
-        _module = deepcopy(module)
+    def sub_get_mask(mask, ind, state, module, reg_index):
+        if ind >= len(mask):
+            points = list()
+            MatrixModel.sub_get_points(points, mask, module, reg_index, 0)
+            MatrixModel.sub_gate_matrix_multiplicate(points, state, module)
+            return
 
-        if not module.control_bits:
-            _module.controlled = False
-            return MatrixModel.get_modulematrix(_module.sub_modules[0])
-
-        _permutation_matrix = np.eye(2 ** _module.n)
-
-        if 0 not in _module.control_bits:
-            _a = _module.control_bits[0]
-            _module.control_bits[0] = 0
-
-            if 0 in _module.reg_indices[0]:
-                _module.reg_indices[0][_module.reg_indices[0].index(0)] = _a
-
-            _permutation_matrix = MatrixModel.get_permutationmatrix(_module.n, 0, _a)
-
-        _module.control_bits.remove(0)
-        _module.n -= 1
-        _module.control_bits[:] = [x - 1 for x in _module.control_bits]
-        _module.reg_indices[0][:] = [x - 1 for x in _module.reg_indices[0]]
-
-        _dim = 2 ** _module.n
-
-        return np.linalg.inv(_permutation_matrix) \
-               @ np.block([[np.eye(_dim), np.zeros((_dim, _dim))],
-                           [np.zeros((_dim, _dim)), np.matrix(MatrixModel.get_controlled_modulematrix(_module))]]) \
-               @ _permutation_matrix
-
+        while mask[ind] == -1 or mask[ind] == 1:
+            ind = ind+1
+            if ind >= len(mask):
+                MatrixModel.sub_get_mask(mask, ind, state, module, reg_index)
+                return
+                
+        if ind < len(mask):
+            MatrixModel.sub_get_mask(mask, ind+1, state, module, reg_index)
+            mask[ind] = 1
+            MatrixModel.sub_get_mask(mask, ind+1, state, module, reg_index)
+            mask[ind] = 0
 
     @staticmethod
-    def get_permutationmatrix(n, i, j):
-        # n-qubit system에서 i번째 qubit과 j번째 qubit의 permutation을 나타내는 행렬을 반환
-        if i is j:
-            return np.eye(2 ** n)
-        
-        _permutation_matrix_array = [np.array([[1]])] * 4
-        
-        for _k in range(n):
-            if _k in (i, j):
-                _permutation_matrix_array[0] = np.kron(np.array([[1, 0], [0, 0]]), _permutation_matrix_array[0])
-                _permutation_matrix_array[1] = np.kron(np.array([[0, 0], [0, 1]]), _permutation_matrix_array[1])
-                if _k is i:
-                    _c1 = 1
-                    _c2 = 0
-                else:
-                    _c1 = 0
-                    _c2 = 1
-                _permutation_matrix_array[2] = np.kron(np.array([[0, _c1], [_c2, 0]]), _permutation_matrix_array[2])
-                _permutation_matrix_array[3] = np.kron(np.array([[0, _c2], [_c1, 0]]), _permutation_matrix_array[3])
-            else:
-                for _l in range(len(_permutation_matrix_array)):
-                    _permutation_matrix_array[_l] = np.kron(np.eye(2), _permutation_matrix_array[_l])
+    def apply_gate(n, state, module, reg_index, control_index):
+        mask = [0] * n
+        for i in reg_index:
+            mask[i] = -1
+        for i in control_index:
+            mask[i] = 1
 
-        _temp_permutation_matrix = sum(_permutation_matrix_array)
-
-        return _temp_permutation_matrix
-
+        MatrixModel.sub_get_mask(mask, 0, state, module, reg_index)
+    
     @staticmethod
     def run(quantum_circuit: QuantumCircuit, state_vector):
         # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
         _state_vector = state_vector.copy()
 
-        _result = np.matmul(np.matrix(MatrixModel.get_modulematrix(quantum_circuit.module)), np.matrix(_state_vector).T)
+        for module, reg_index in zip(*quantum_circuit.module.typ_decompose()):
+            temp_reg_index = list()
+            temp_control_index = list()
+            if module.controlled:
+                for i in module.reg_indices[0]:
+                    temp_reg_index.append(reg_index[i])
+                for i in module.control_bits:
+                    temp_control_index.append(reg_index[i])
+            else:
+                temp_reg_index = reg_index.copy()
+        
+            MatrixModel.apply_gate(quantum_circuit.n, _state_vector, module, temp_reg_index, temp_control_index)
 
-        return _result.T.tolist()[0]
+        return _state_vector
