@@ -9,15 +9,15 @@ from ctypes import *
 
 from . import Backend
 from . import MatrixModel
+from .. import Module
 from .. import TypicalModule
-from .. import QuantumCircuit
 
 class Cimulator(Backend):
     def __init__(self):
         pass
 
     @staticmethod
-    def run(quantum_circuit: QuantumCircuit, state_vector):
+    def run(quantum_circuit: Module, state_vector):
         
         csim = cdll.LoadLibrary('%s/csim.so' % os.path.dirname(os.path.realpath(__file__)))
 
@@ -25,7 +25,7 @@ class Cimulator(Backend):
 
         csim.setNumQubit(quantum_circuit.n)
 
-        for _gate, _indices in zip(*quantum_circuit.module.typ_decompose()):
+        for _gate, _indices in zip(*quantum_circuit.typ_decompose()):
            Cimulator.sendGateToBackend(csim, _gate, _indices)
 
         csim.printQCStatus()

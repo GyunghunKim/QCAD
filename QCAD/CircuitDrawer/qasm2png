@@ -12,6 +12,10 @@
 
 set GS = "gs -sDEVICE=pnmraw -r400 -dNOPAUSE"
 
+set rootdir = `dirname $0`
+set abs_rootdir = `cd $rootdir && pwd`
+cd $abs_rootdir
+
 foreach i ($*)
 
         set t = `echo $i | sed "s/.qasm//"`

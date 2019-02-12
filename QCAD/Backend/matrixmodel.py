@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from . import Backend
 from .. import TypicalModule
-from .. import QuantumCircuit
+from .. import Module
 
 
 class MatrixModel(Backend):
@@ -109,11 +109,11 @@ class MatrixModel(Backend):
         MatrixModel.sub_get_mask(mask, 0, state, module, reg_index)
     
     @staticmethod
-    def run(quantum_circuit: QuantumCircuit, state_vector):
+    def run(quantum_circuit: Module, state_vector):
         # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
         _state_vector = state_vector.copy()
 
-        for module, reg_index in zip(*quantum_circuit.module.typ_decompose()):
+        for module, reg_index in zip(*quantum_circuit.typ_decompose()):
             temp_reg_index = list()
             temp_control_index = list()
             if module.controlled:
