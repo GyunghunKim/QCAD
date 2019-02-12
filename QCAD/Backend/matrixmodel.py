@@ -24,17 +24,9 @@ class MatrixModel(Backend):
          [0., np.exp(math.pi / 4 * 1.0j)]]
     S = [[1., 0.],
          [0., 1.0j]]
-    CX = [[1., 0., 0., 0.],
-          [0., 1., 0., 0.],
-          [0., 0., 0., 1.],
-          [0., 0., 1., 0.]]
-    CZ = [[1., 0., 0., 0.],
-          [0., 1., 0., 0.],
-          [0., 0., 1., 0.],
-          [0., 0., 0., -1.]]
 
     #TypicalMatrix dictionary는 알려진 모듈의 이름과 행렬을 관계지음.
-    PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'S':S, 'CX':CX, 'CZ':CZ}
+    PreDefinedModeules = {'H':H, 'X':X, 'Y':Y, 'Z':Z, 'I':I, 'T':T, 'S':S}
 
     def __init__(self):
         pass
@@ -42,7 +34,7 @@ class MatrixModel(Backend):
     @staticmethod
     def bit_to_int(mask):
         res = 0
-        
+
         for i in range(len(mask)):
             res += mask[i] * (2 ** i)
 
@@ -66,7 +58,7 @@ class MatrixModel(Backend):
             temp.append(state[points[i]])
         temp = np.reshape(temp, (-1, 1))
         temp = MatrixModel.get_typ_module_matrix(module) @ temp
-   
+
         for i in range(len(points)):
             state[points[i]] = temp[i][0]
 
@@ -91,7 +83,7 @@ class MatrixModel(Backend):
             if ind >= len(mask):
                 MatrixModel.sub_get_mask(mask, ind, state, module, reg_index)
                 return
-                
+
         if ind < len(mask):
             MatrixModel.sub_get_mask(mask, ind+1, state, module, reg_index)
             mask[ind] = 1
@@ -107,7 +99,7 @@ class MatrixModel(Backend):
             mask[i] = 1
 
         MatrixModel.sub_get_mask(mask, 0, state, module, reg_index)
-    
+
     @staticmethod
     def run(quantum_circuit: Module, state_vector):
         # initial_state를 받아서 circuit을 계산한 뒤 결과를 리턴한다.
@@ -123,7 +115,7 @@ class MatrixModel(Backend):
                     temp_control_index.append(reg_index[i])
             else:
                 temp_reg_index = reg_index.copy()
-        
+
             MatrixModel.apply_gate(quantum_circuit.n, _state_vector, module, temp_reg_index, temp_control_index)
 
         return _state_vector

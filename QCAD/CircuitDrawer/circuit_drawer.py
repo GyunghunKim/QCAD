@@ -2,6 +2,8 @@ import os
 from subprocess import run
 from IPython.display import Image, display
 
+from .. import Module
+
 def get_script(n, modules, indices):
     script = ''
 
@@ -68,6 +70,11 @@ def get_script(n, modules, indices):
     return script
 
 def draw(module, option=''):
+    if module.controlled:
+        temp_module = Module(module.name, module.n, [module[list(range(module.n))]])
+        draw(temp_module, option)
+        return
+    
     if option == 'decomposed':
         modules, indices = module.typ_decompose()
         script = get_script(module.n, modules, indices)

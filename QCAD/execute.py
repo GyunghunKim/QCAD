@@ -6,7 +6,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-def execute(backend, quantum_circuit, initial_state = [], option='', abs_tol=1e-08):
+def execute(backend, quantum_circuit, initial_state=[], option='', abs_tol=1e-08):
     _state_vector = [1.+0.j]
     if not initial_state:
         _state_vector = [0.+0.j] * 2 ** quantum_circuit.n
@@ -27,6 +27,7 @@ def execute(backend, quantum_circuit, initial_state = [], option='', abs_tol=1e-
 
     if option == 'silent':
         return
+
     if option == 'nonzero':
         prob = [(x*np.conjugate(x)).real for x in _res]
         print('='*50)
