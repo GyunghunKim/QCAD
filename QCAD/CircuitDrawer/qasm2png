@@ -26,7 +26,7 @@ foreach i ($*)
 	else
 	    latex $t
 	    dvips -D2400 -E -o $t.eps $t
-	    ${GS} -sOutputFile=$t.pbm $t.eps -c quit
+	    ${GS} -sOutputFile=$t.pbm $t.eps -c qui:
 	    pnmcrop $t.pbm | pnmtopng >! $t.png
 	    rm -f $t.pbm
 		rm -f $t.aux $t.dvi $t.eps $t.idx $t.log
