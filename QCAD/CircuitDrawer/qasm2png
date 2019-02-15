@@ -20,7 +20,7 @@ foreach i ($*)
 
         set t = `echo $i | sed "s/.qasm//"`
 
-	python2 qasm2tex.py $i >! $t.tex
+	python qasm2tex.py $i >! $t.tex
 	if (-z $t.tex) then
 	    echo "error in qasm2tex on $t.tex! aborting."
 	else
@@ -29,5 +29,6 @@ foreach i ($*)
 	    ${GS} -sOutputFile=$t.pbm $t.eps -c quit
 	    pnmcrop $t.pbm | pnmtopng >! $t.png
 	    rm -f $t.pbm
+		rm -f $t.aux $t.dvi $t.eps $t.idx $t.log
 	endif
 end
