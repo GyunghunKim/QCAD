@@ -16,8 +16,8 @@ Quantum Circuit Simulating Tools
 
 1. python2
 
-우선 terminal에서 어떤 명령어로 python2가 실행되는지 확인합니다.
-이후 QCAD/CircuitDrawer/qasm2png 에서 python2 부분을 해당 명령어로 바꿔줍니다.
+우선 terminal에서 어떤 명령어로 python2가 실행되는지 확인합니다.<br/>
+이후 QCAD/CircuitDrawer/qasm2png 에서 python2 부분을 해당 명령어로 바꿔줍니다.<br/>
 기본은 python2로 세팅되어 있습니다.
 
 2. python3
