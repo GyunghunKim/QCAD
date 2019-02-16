@@ -32,5 +32,4 @@ Quantum Circuit Simulating Tools
 
 - 그림은 모두 QCAD/CircuitDrawer/에 저장됩니다.
 
-- 회로를 그리기 위해 I. Chuang의 qasm2circ 패키지가 활용되었음을 밝힙니다.
-	링크: https://www.media.mit.edu/quanta/qasm2circ/
+- 회로를 그리기 위해 I. Chuang의 qasm2circ 패키지가 활용되었음을 밝힙니다.&nbsp;링크: https://www.media.mit.edu/quanta/qasm2circ/
