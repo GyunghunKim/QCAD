@@ -28,7 +28,6 @@ foreach i ($*)
 	    dvips -D2400 -E -o $t.eps $t
 	    ${GS} -sOutputFile=$t.pbm $t.eps -c qui:
 	    pnmcrop $t.pbm | pnmtopng >! $t.png
-	    rm -f $t.pbm
-		rm -f $t.aux $t.dvi $t.eps $t.idx $t.log
+	    rm -f $t.pbm $t.aux $t.dvi $t.eps $t.idx $t.log $t.tex
 	endif
 end
