@@ -16,12 +16,13 @@ make
 
 ## Dependency
 
-1. python2 (For drawing circuits)
-2. python3 (For everything else)
-3. numpy
-4. latex with xypic (For drawing circuits)
-5. netpbm (For drawing circuits)
-6. csh (For drawing circuits)
+1. camke and make (For compilation of C++
+2. python2 (For drawing circuits)
+3. python3 (For everything else)
+4. numpy
+5. latex with xypic (For drawing circuits)
+6. netpbm (For drawing circuits)
+7. csh (For drawing circuits)
 - Please note that we are planning to eleminate the dependencies to python2 and csh
 
 ## Extras
