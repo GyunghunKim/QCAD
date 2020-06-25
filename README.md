@@ -8,7 +8,7 @@ Quantum Circuit Simulating Tools
 ~~~
 git clone https://github.com/GyunghunKim/QCAD.git
 ~~~
-2. Compilation with cmake
+2. Compile it with cmake
 ~~~
 cmake .
 make
@@ -22,10 +22,10 @@ make
 4. latex with xypic (For drawing circuits)
 5. netpbm (For drawing circuits)
 
-## Extras.
+## Extras
 
-- Every circuit diagrams will be automatically saved in `./CircuitDrawer/`.
+- Every circuit diagrams would be automatically saved in `./CircuitDrawer/`.
 
-- The package qasm2circ of I. Chuang was deployed to draw circuits
+- The package qasm2circ of I. Chuang was deployed to draw quantum circuits.
 
-Link of the package: https://www.media.mit.edu/quanta/qasm2circ/
+- Link of the package qasm2circ: https://www.media.mit.edu/quanta/qasm2circ/
