@@ -9,7 +9,11 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 
-# C extensions
+# Quantum circuit drawn
+*.qasm
+*.png
+
+# C library extensions
 *.so
 
 # Swap files
