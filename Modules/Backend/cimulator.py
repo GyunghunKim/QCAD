@@ -28,7 +28,7 @@ class Cimulator(Backend):
         for _gate, _indices in zip(*quantum_circuit.typ_decompose()):
            Cimulator.sendGateToBackend(csim, _gate, _indices)
 
-        csim.printQCStatus()
+#        csim.printQCStatus()
 
         _c_state_real, _c_state_imag = [(c_double * len(x))(*x) for x in
             [np.real(state_vector).tolist(), np.imag(state_vector).tolist()]]
