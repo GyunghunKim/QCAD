@@ -2,12 +2,12 @@
 
 Quantum Circuit Simulating Tools
 
-# 설치 방법
+## Complie
 
 1. 리눅스 기반의 운영체제에서 동작합니다.
 2. 원하는 경로로 이동한 후 다음 명령어로 설치합니다.
 ~~~
-	git clone https://github.com/GyunghunKim/QCAD.git
+git clone https://github.com/GyunghunKim/QCAD.git
 ~~~
 3. QCAD/Backend/build.sh 스크립트를 실행해 csim.so 파일을 빌드합니다.
 4. QCAD 폴더 내부에 있는 Test.ipynb 파일과 Tutorial.ipynb 파일을 jupyter notebook을 통해 확인합니다.
