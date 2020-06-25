@@ -1,6 +1,6 @@
 # Module for function execute
 
-from .. import Backend
+from . import Backend
 
 import math
 import numpy as np
