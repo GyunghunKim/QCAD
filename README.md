@@ -1,6 +1,6 @@
 # QCAD
 
-Quantum Circuit Simulating Tools
+Quantum Circuit Simulating Tool
 
 ## Installation
 
