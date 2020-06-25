@@ -14,13 +14,15 @@ cmake .
 make
 ~~~
 
-## Prerequisites
+## Dependency
 
 1. python2 (For drawing circuits)
 2. python3 (For everything else)
 3. numpy
 4. latex with xypic (For drawing circuits)
 5. netpbm (For drawing circuits)
+6. csh (For drawing circuits)
+- Please note that we are planning to eleminate the dependencies to python2 and csh
 
 ## Extras
 
