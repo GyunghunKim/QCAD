@@ -1,6 +1,6 @@
 # Module for class Backend
 
-from .. import Module
+from ../Modules/ import Module
 
 class Backend(object):
     def __init__(self):

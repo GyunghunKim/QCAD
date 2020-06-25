@@ -9,8 +9,8 @@ from ctypes import *
 
 from . import Backend
 from . import MatrixModel
-from .. import Module
-from .. import TypicalModule
+from ../Modules/ import Module
+from ../Modules/ import TypicalModule
 
 class Cimulator(Backend):
     def __init__(self):

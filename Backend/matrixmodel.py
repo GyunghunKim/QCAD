@@ -5,8 +5,8 @@ import math
 from copy import deepcopy
 
 from . import Backend
-from .. import TypicalModule
-from .. import Module
+from ../Modules/ import TypicalModule
+from ../Modules/ import Module
 
 
 class MatrixModel(Backend):
