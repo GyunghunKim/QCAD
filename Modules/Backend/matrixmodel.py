@@ -78,9 +78,9 @@ class MatrixModel(Backend):
             MatrixModel.sub_gate_matrix_multiplicate(points, state, module)
             return
 
-		# In the case of qubit #ind is one of control bits(1) or applied bits
-		# (-1, which becomes both 0 and 1 at sub_get_points()).
-		while mask[ind] == -1 or mask[ind] == 1:
+        # In the case of qubit #ind is one of control bits(1) or applied bits
+        # (-1, which becomes both 0 and 1 at sub_get_points()).
+        while mask[ind] == -1 or mask[ind] == 1:
             ind = ind+1
             if ind >= len(mask):
                 MatrixModel.sub_get_mask(mask, ind, state, module, reg_index)

@@ -25,9 +25,9 @@ def execute(backend, quantum_circuit, initial_state=[], option='', abs_tol=1e-08
     if backend == "Cimulator":
         _res = Backend.Cimulator.run(quantum_circuit, _state_vector)
 
-	# Qiskit Aer
-	if backend == "Qiskit":
-		_res = Backend.Qiskit.run(quantum_circuit, _state_vector)
+    # Qiskit Aer
+    if backend == "Qiskit":
+        _res = Backend.Qiskit.run(quantum_circuit, _state_vector)
 
     if option == 'silent':
         return

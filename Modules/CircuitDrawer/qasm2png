@@ -20,7 +20,7 @@ foreach i ($*)
 
         set t = `echo $i | sed "s/.qasm//"`
 
-	python2 qasm2tex.py $i >! $t.tex
+	python qasm2tex.py $i >! $t.tex
 	if (-z $t.tex) then
 	    echo "error in qasm2tex on $t.tex! aborting."
 	else
