@@ -27,7 +27,7 @@ make
 
 ## Extras
 
-- Every circuit diagrams would be automatically saved in `./CircuitDrawer/`.
+- Every circuit diagram would be automatically saved in `./CircuitDrawer/`.
 - The package qasm2circ of I. Chuang was deployed to draw quantum circuits.
 - Link of the package qasm2circ: https://www.media.mit.edu/quanta/qasm2circ/
 
